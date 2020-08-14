@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="caf891f5-f9ba-4889-8a72-3205b61ec407" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/CNAME" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/themes/next/_config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/themes/next/_config.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" path="E:\Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1cWceiRXpMq2lnc6H4eEbWoMS3E" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/public" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\HtmlProject\blog\public" />
+      <recent name="D:\HtmlProject\blog" />
+    </key>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/blog/.deploy_git" />
+      <path value="$PROJECT_DIR$/blog/themes/next" />
+      <path value="$PROJECT_DIR$/themes/next1" />
+    </ignored-roots>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="632" y="304" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1594691089611">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="632" y="304" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594691089611" />
+    <state x="558" y="86" key="CommitChangelistDialog2" timestamp="1590655409930">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="558" y="86" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1590655409930" />
+    <state x="421" y="283" key="FileChooserDialogImpl" timestamp="1594691833717">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="421" y="283" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594691833717" />
+    <state x="421" y="283" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1591945732744" />
+    <state width="1456" height="240" key="GridCell.Tab.0.bottom" timestamp="1594366910144">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1456" height="240" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594366910144" />
+    <state width="1456" height="240" key="GridCell.Tab.0.center" timestamp="1594366910144">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1456" height="240" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594366910144" />
+    <state width="1456" height="240" key="GridCell.Tab.0.left" timestamp="1594366910144">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1456" height="240" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594366910144" />
+    <state width="1456" height="240" key="GridCell.Tab.0.right" timestamp="1594366910144">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1456" height="240" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594366910144" />
+    <state x="222" y="104" key="SettingsEditor" timestamp="1594378694178">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="222" y="104" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594378694178" />
+    <state x="2142" y="104" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1594363629853" />
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2" timestamp="1590654146630">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1590654146630" />
+    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1594368418217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594368418217" />
+    <state x="754" y="432" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1590655396382">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="754" y="432" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1590655396382" />
+    <state x="834" y="223" width="717" height="752" key="find.popup" timestamp="1594691355165">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="834" y="223" width="717" height="752" key="find.popup/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1594691355165" />
+    <state x="834" y="223" width="598" height="616" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1590650644843" />
+    <state x="702" y="401" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1590654130779">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="702" y="401" key="git4idea.remote.GitConfigureRemotesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1590654130779" />
+  </component>
+</project>
