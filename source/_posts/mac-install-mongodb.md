@@ -16,13 +16,16 @@ category:
 ```shell script
 https://www.mongodb.com/download-center/community
 ```
+
+<!-- more -->
+
 ![下载mangodb](http://p1.pstatp.com/origin/pgc-image/c05c636c30f4402b8f7276b7488d6a22)
 2. 进入`/usr/local`目录
 
 ```shell script
 cd /usr/local
 ```
-<!-- more -->
+
 3. 下载并解压
 
 ```shell script

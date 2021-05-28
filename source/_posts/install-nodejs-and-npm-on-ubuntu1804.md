@@ -26,7 +26,7 @@ sudo apt-get update
 sudo apt-get install nodejs
 sudo apt install libssl1.0-dev nodejs-dev node-gyp npm
 ```
-
+<!-- more -->
 #### 设置镜像源
 
 ````shell script
