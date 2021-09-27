@@ -6,7 +6,7 @@ tags:
 - nodejs
 - npm
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ### 更新ubuntu软件源

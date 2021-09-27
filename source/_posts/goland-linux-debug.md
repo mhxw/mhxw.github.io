@@ -6,7 +6,7 @@ tags:
 - golang
 - goland
 category: 
-- Tutorial
+- 技术教程
 ---
 
 

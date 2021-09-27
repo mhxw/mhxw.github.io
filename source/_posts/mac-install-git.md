@@ -7,7 +7,7 @@ tags:
 - git
 - github
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ### 安装步骤

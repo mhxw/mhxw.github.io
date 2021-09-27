@@ -6,7 +6,7 @@ tags:
 - beego
 - golang
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ### 安装Golang

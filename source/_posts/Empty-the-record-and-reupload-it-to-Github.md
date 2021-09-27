@@ -5,7 +5,7 @@ tags:
 - github
 - git
 category: 
-- Learning
+- 学习笔记
 ---
 
 1. 进入本地仓库，删除.git目录

@@ -5,7 +5,7 @@ tags:
 - npm
 - js
 category: 
-- Project
+- 项目运营
 ---
 
 1. npm init 初始化你的包名和版本，之后也可以在package.json文件里修改

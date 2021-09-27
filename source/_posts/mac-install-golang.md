@@ -5,7 +5,7 @@ tags:
 - mac
 - golang
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ![image.png](http://p1.pstatp.com/large/pgc-image/132340be8ea24014a7e191ea66ce96b0)

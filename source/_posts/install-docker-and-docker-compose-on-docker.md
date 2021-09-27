@@ -6,7 +6,7 @@ tags:
 - docker
 - docker-compose
 category:
-- Tutorial
+- 技术教程
 ---
 
 ### 一、安装docker

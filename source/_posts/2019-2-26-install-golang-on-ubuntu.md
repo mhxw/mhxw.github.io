@@ -5,7 +5,7 @@ tags:
   - golang
   - linux
 category:
-  - Golang
+- 技术教程
 author: MHXW
 ---
 

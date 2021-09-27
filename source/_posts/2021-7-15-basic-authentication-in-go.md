@@ -4,9 +4,9 @@ date: 2021-7-15
 tags:
 - basic-auth
 - golang
-- tutorial
+- 技术教程
 category:
-- Golang
+- 学习笔记
 author: mhxw
 ---
 

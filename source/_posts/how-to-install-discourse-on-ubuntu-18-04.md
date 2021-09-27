@@ -5,7 +5,7 @@ tags:
 - ubuntu
 - ssh
 category: 
-- Project
+- 项目运营
 ---
 
 ## 介绍

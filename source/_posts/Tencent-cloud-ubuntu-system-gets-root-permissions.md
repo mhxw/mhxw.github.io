@@ -5,7 +5,7 @@ tags:
 - ubuntu
 - ssh
 category: 
-- Tutorial
+- 技术教程
 ---
 
 1. 生成root用户

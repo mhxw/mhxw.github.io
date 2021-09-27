@@ -6,7 +6,7 @@ tags:
 - mongodb
 - database
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ### 安装MongoDB

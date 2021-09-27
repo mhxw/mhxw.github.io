@@ -6,7 +6,7 @@ tags:
 - wordpress
 - linux
 category: 
-- Tutorial
+- 技术教程
 ---
 
 ### 准备环境

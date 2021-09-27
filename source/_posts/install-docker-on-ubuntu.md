@@ -5,7 +5,7 @@ tags:
 - ubuntu
 - docker
 category: 
-- Tutorial
+- 技术教程
 ---
 
 移除系统旧版本
