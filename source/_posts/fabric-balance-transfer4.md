@@ -5,8 +5,6 @@ tags:
 - blockchain
 - hyperledger
 category: 
-- Technology
-- Blockchain
 - Hyperledger
 ---
 

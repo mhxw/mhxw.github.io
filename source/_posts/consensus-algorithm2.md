@@ -4,8 +4,7 @@ date: 2018/12/15 10:00:00
 tags: 
 - blockchain
 category: 
-- Technology
-- Blockchain
+- 区块链
 ---
 
 ##  BFT：Byzantine Fault Tolerance，拜占庭容错技术

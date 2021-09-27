@@ -5,8 +5,7 @@ tags:
 - java
 - JavaFX
 category: 
-- Technology
-- JAVA
+- JavaFX
 description: 文中以一个文件下载作为案例介绍，看代码即可明了
 ---
 

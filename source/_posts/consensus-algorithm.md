@@ -4,8 +4,7 @@ date: 2018/10/01 10:00:00
 tags: 
 - blockchain
 category: 
-- Technology
-- Blockchain
+- 区块链
 ---
 
 ## 1. POW（Proof Of Work）
