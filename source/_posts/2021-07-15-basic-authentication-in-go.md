@@ -1,6 +1,6 @@
 ---
 title: 如何在Golang中正确使用基本身份认证（HTTP Basic Authentication）
-date: 2021-7-15
+date: 2021-07-15
 tags:
 - basic-auth
 - golang

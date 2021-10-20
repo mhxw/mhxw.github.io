@@ -1,6 +1,6 @@
 ---
 title: 在Ubuntu 18.04上安装Discourse Docker镜像
-date: 2021-2-27
+date: 2021-02-27
 tags:
 - docker
 - ubuntu

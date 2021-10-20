@@ -1,6 +1,6 @@
 ---
 title: Linux下查找进程id并强制停止进程的脚本
-date: 2021-5-23
+date: 2021-05-23
 tags: 
   - linux
   - shell

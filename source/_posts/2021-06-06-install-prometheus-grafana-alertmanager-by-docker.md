@@ -1,6 +1,6 @@
 ---
 title: 使用Docker安装Prometheus+Grafana+AlertManager
-date: 2021-6-6
+date: 2021-06-06
 tags: 
   - alertmanager
   - grafana

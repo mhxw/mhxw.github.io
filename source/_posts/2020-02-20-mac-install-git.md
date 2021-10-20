@@ -1,6 +1,6 @@
 ---
 title: Linux安装Git以及Git常见命令
-date: 2020/2/20 21:00:00
+date: 2020/02/20 21:00:00
 tags: 
 - linux
 - mac

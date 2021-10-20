@@ -1,6 +1,6 @@
 ---
 title: 查看磁盘使用情况
-date: 2021-6-20
+date: 2021-06-20
 tags: 
   - linux
 category:

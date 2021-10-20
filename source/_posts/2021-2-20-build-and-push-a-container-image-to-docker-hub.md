@@ -3,6 +3,8 @@ title: Build and push a container image to Docker Hub
 date: 2021-2-20
 tags: 
   - docker
+category:
+  - 技术运营
 author: mhxw
 ---
 

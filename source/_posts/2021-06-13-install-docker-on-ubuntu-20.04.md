@@ -1,6 +1,6 @@
 ---
 title: Install docker on ubuntu 20.04
-date: 2021-6-13
+date: 2021-06-13
 tags: 
   - ubuntu
   - docker

@@ -1,6 +1,6 @@
 ---
 title: Pushgateway 的安装和使用
-date: 2021-6-6
+date: 2021-06-06
 tags: 
   - pushgateway
   - prometheus

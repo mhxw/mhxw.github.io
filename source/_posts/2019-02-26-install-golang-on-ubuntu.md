@@ -1,6 +1,6 @@
 ---
 title: 在Ubuntu上安装Golang
-date: 2019-2-26
+date: 2019/02/26 21:00:00
 tags: 
   - golang
   - linux

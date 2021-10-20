@@ -1,6 +1,6 @@
 ---
 title: Docker安装Nginx
-date: 2021-7-4
+date: 2021-07-04
 tags: 
   - linux
   - nginx

@@ -4,8 +4,6 @@ date: 2019/08/01 22:00:00
 tags: 
 - java
 - JavaFX
-category: 
-- JavaFX
 description: 文中以一个文件下载作为案例介绍，看代码即可明了
 ---
 
@@ -14,7 +12,7 @@ description: 文中以一个文件下载作为案例介绍，看代码即可明�
 ---
 - Task
 ```
-package com.hc.demo;
+y
 
 import javafx.application.Application;
 import javafx.application.Platform;

@@ -1,6 +1,6 @@
 ---
 title: Ubuntu 18.04 安装Docker到指定目录和Docker安装MySQL8.0
-date: 2021-5-16
+date: 2021-05-16
 tags:
 - ubuntu
 - docker

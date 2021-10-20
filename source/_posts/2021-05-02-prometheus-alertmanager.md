@@ -1,6 +1,6 @@
 ---
 title: Prometheus监控平台AlertManager配置告警
-date: 2021-5-2
+date: 2021-05-02
 tags:
   - prometheus
   - alertmanager
