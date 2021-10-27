@@ -12,6 +12,8 @@ author: mhxw
 
 在Go1.4版本中引入了[HTTP基本身份认证模块](https://pkg.go.dev/net/http#Request.BasicAuth) 。
 
+<!-- more -->
+
 ## 什么是基本认证？我应该在什么时候使用它？
 
 作为开发人员，您可能访问受保护的网址时，Web 浏览器显示以下弹框。
@@ -27,7 +29,7 @@ Authorization: Basic YWxpY2U6cGE1NXdvcmQ=
 ```shell
 Authorization: Basic base64encode(username+":"+password)
 ```
-<!-- more -->
+
 HTTP协议中的 `Authorization` 请求消息头含有服务器用于验证用户代理身份的凭证。格式是`Basic`字符串+空格+用户名:密码的Base64编码。在上述示例中，`YWxpY2U6cGE1NXdvcmQ=`= 是用户名:密码的base64编码。
 
 当服务器收到这个请求时，它会从`Authorization`中解析用户名和密码并检查它们是否有效。如果凭据无效，服务器返回`401 Unauthorized`响应，浏览器可以再次显示弹框。

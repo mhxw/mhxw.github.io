@@ -8,7 +8,13 @@ yarn install
 ## Install Hexo
 
 ```shell
-yarn add -g hexo-cli
+yarn global add hexo-cli
+```
+
+## Remove Hexo Cli
+
+```shell
+yarn global remove hexo-cli
 ```
 
 ## Generate static files.
