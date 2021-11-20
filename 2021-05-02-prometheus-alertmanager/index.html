@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.life","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="一. 前言接上一篇Prometheus+Grafana监控部署，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。 二、介绍AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。 三、安装部署">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prometheus监控平台AlertManager配置告警">
+<meta property="og:url" content="https://mhxw.life/2021-05-02-prometheus-alertmanager/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="一. 前言接上一篇Prometheus+Grafana监控部署，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。 二、介绍AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。 三、安装部署">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-02T00:00:00.000Z">
+<meta property="article:modified_time" content="2021-10-20T02:48:47.507Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="alertmanager">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.life/2021-05-02-prometheus-alertmanager/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://mhxw.life/2021-05-02-prometheus-alertmanager/","path":"2021-05-02-prometheus-alertmanager/","title":"Prometheus监控平台AlertManager配置告警"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Prometheus监控平台AlertManager配置告警 | MHXW</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">MHXW</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-%E5%89%8D%E8%A8%80"><span class="nav-text">一. 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="nav-text">二、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2"><span class="nav-text">三、安装部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BD"><span class="nav-text">1、下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%A7%A3%E5%8E%8B"><span class="nav-text">2、解压</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E7%BC%96%E8%BE%91alertmanager%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">3、编辑alertmanager配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%A3%80%E6%9F%A5AlertManager%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">4、检查AlertManager配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E5%90%AF%E5%8A%A8AlertManager"><span class="nav-text">5、启动AlertManager</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%87%8D%E6%96%B0%E9%85%8D%E7%BD%AEPrometheus"><span class="nav-text">四、重新配置Prometheus</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%BC%96%E8%BE%91prometheus-yml"><span class="nav-text">1、编辑prometheus.yml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BA%E5%91%8A%E8%AD%A6%E7%9B%AE%E5%BD%95-amp-%E6%B7%BB%E5%8A%A0%E6%8A%A5%E8%AD%A6%E8%A7%84%E5%88%99"><span class="nav-text">2、创建告警目录&amp;添加报警规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E9%87%8D%E5%90%AFPrometheus"><span class="nav-text">3、重启Prometheus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%9F%A5%E7%9C%8B%E9%82%AE%E4%BB%B6"><span class="nav-text">4、查看邮件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-text">参考文档</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/mhxw" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;mhxw" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mhxw" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.life/2021-05-02-prometheus-alertmanager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Prometheus监控平台AlertManager配置告警
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-02 00:00:00" itemprop="dateCreated datePublished" datetime="2021-05-02T00:00:00Z">2021-05-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/" itemprop="url" rel="index"><span itemprop="name">运维监控</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="一-前言"><a href="#一-前言" class="headerlink" title="一. 前言"></a>一. 前言</h2><p>接上一篇<a href="./2021-4-25-install-prometheus-on-linux.md">Prometheus+Grafana监控部署</a>，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。</p>
+<h2 id="二、介绍"><a href="#二、介绍" class="headerlink" title="二、介绍"></a>二、介绍</h2><p>AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。</p>
+<h2 id="三、安装部署"><a href="#三、安装部署" class="headerlink" title="三、安装部署"></a>三、安装部署</h2><span id="more"></span>
+<h3 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h3><p><a target="_blank" rel="noopener" href="https://prometheus.io/download/">https://prometheus.io/download/</a></p>
+<h3 id="2、解压"><a href="#2、解压" class="headerlink" title="2、解压"></a>2、解压</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /mhxw/prometheus/alertmanager</span><br><span class="line">wget https://github.com/prometheus/alertmanager/releases/download/v0.22.2/alertmanager-0.22.2.linux-amd64.tar.gz</span><br><span class="line">tar -zxvf alertmanager-0.22.2.linux-amd64.tar.gz -C /mhxw/prometheus/</span><br><span class="line">mv /mhxw/prometheus/alertmanager-0.22.2.linux-amd64/* /mhxw/prometheus/alertmanager</span><br><span class="line">cd /mhxw/prometheus/alertmanager</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看版本</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/mhxw/prometheus/alertmanager/alertmanager --version</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、编辑alertmanager配置文件"><a href="#3、编辑alertmanager配置文件" class="headerlink" title="3、编辑alertmanager配置文件"></a>3、编辑<code>alertmanager</code>配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /mhxw/prometheus/alertmanager/alertmanager.yml</span><br></pre></td></tr></table></figure>
+
+<p>配置文件说明</p>
+<ul>
+<li>全局配置（global）：用于定义一些全局的公共参数，如全局的SMTP配置，Slack配置等内容；</li>
+<li>模板（templates）：用于定义告警通知时的模板，如HTML模板，邮件模板等；</li>
+<li>告警路由（route）：根据标签匹配，确定当前告警应该如何处理；</li>
+<li>接收人（receivers）：接收人是一个抽象的概念，它可以是一个邮箱也可以是微信，Slack或者Webhook等，接收人一般配合告警路由使用；</li>
+<li>抑制规则（inhibit_rules）：合理设置抑制规则可以减少垃圾告警的产生</li>
+</ul>
+<p>完整配置格式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">global:</span><br><span class="line">  [ resolve_timeout: &lt;duration&gt; | default = 5m ]</span><br><span class="line">  [ smtp_from: &lt;tmpl_string&gt; ] </span><br><span class="line">  [ smtp_smarthost: &lt;string&gt; ] </span><br><span class="line">  [ smtp_hello: &lt;string&gt; | default = &quot;localhost&quot; ]</span><br><span class="line">  [ smtp_auth_username: &lt;string&gt; ]</span><br><span class="line">  [ smtp_auth_password: &lt;secret&gt; ]</span><br><span class="line">  [ smtp_auth_identity: &lt;string&gt; ]</span><br><span class="line">  [ smtp_auth_secret: &lt;secret&gt; ]</span><br><span class="line">  [ smtp_require_tls: &lt;bool&gt; | default = true ]</span><br><span class="line">  [ slack_api_url: &lt;secret&gt; ]</span><br><span class="line">  [ victorops_api_key: &lt;secret&gt; ]</span><br><span class="line">  [ victorops_api_url: &lt;string&gt; | default = &quot;https://alert.victorops.com/integrations/generic/20131114/alert/&quot; ]</span><br><span class="line">  [ pagerduty_url: &lt;string&gt; | default = &quot;https://events.pagerduty.com/v2/enqueue&quot; ]</span><br><span class="line">  [ opsgenie_api_key: &lt;secret&gt; ]</span><br><span class="line">  [ opsgenie_api_url: &lt;string&gt; | default = &quot;https://api.opsgenie.com/&quot; ]</span><br><span class="line">  [ hipchat_api_url: &lt;string&gt; | default = &quot;https://api.hipchat.com/&quot; ]</span><br><span class="line">  [ hipchat_auth_token: &lt;secret&gt; ]</span><br><span class="line">  [ wechat_api_url: &lt;string&gt; | default = &quot;https://qyapi.weixin.qq.com/cgi-bin/&quot; ]</span><br><span class="line">  [ wechat_api_secret: &lt;secret&gt; ]</span><br><span class="line">  [ wechat_api_corp_id: &lt;string&gt; ]</span><br><span class="line">  [ http_config: &lt;http_config&gt; ]</span><br><span class="line"></span><br><span class="line">templates:</span><br><span class="line">  [ - &lt;filepath&gt; ... ]</span><br><span class="line"></span><br><span class="line">route: &lt;route&gt;</span><br><span class="line"></span><br><span class="line">receivers:</span><br><span class="line">  - &lt;receiver&gt; ...</span><br><span class="line"></span><br><span class="line">inhibit_rules:</span><br><span class="line">  [ - &lt;inhibit_rule&gt; ... ]</span><br></pre></td></tr></table></figure>
+
+<p>文件内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">global:</span><br><span class="line">  resolve_timeout: 5m</span><br><span class="line">  smtp_smarthost: &quot;smtp.qq.com:587&quot;</span><br><span class="line">  smtp_from: &quot;****@foxmail.com&quot;</span><br><span class="line">  smtp_auth_username: &quot;****@foxmail.com&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash">邮箱专用授权码</span></span><br><span class="line">  smtp_auth_password: &quot;****&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash">关闭TLS授权</span></span><br><span class="line">  smtp_require_tls: true</span><br><span class="line">route:</span><br><span class="line">  group_by: [&#x27;mhxw_status&#x27;,&#x27;node_status&#x27;] #与prometheus配置文件alert_rules.yml中配置规则名对应</span><br><span class="line">  group_wait: 30s #报警等待时间</span><br><span class="line">  group_interval: 5m #报警间隔时间</span><br><span class="line">  repeat_interval: 1h #重复报警间隔时间</span><br><span class="line">  receiver: &#x27;mhxw_receiver&#x27; #告警处理方式</span><br><span class="line">receivers:</span><br><span class="line">- name: &#x27;mhxw_receiver&#x27;</span><br><span class="line">  email_configs:</span><br><span class="line">    - to: &#x27;mhxw@gmail.com&#x27;</span><br><span class="line">      send_resolved: true</span><br><span class="line">inhibit_rules:</span><br><span class="line">  - source_match:</span><br><span class="line">      severity: &#x27;critical&#x27;</span><br><span class="line">    target_match:</span><br><span class="line">      severity: &#x27;warning&#x27;</span><br><span class="line">    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>template目录下<code>node_status.tmpl</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; define &quot;node.status.message&quot; &#125;&#125;</span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Firing) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line">&#123;&#123;- if eq $index 0 -&#125;&#125;</span><br><span class="line">**********MHXW告警通知**********</span><br><span class="line">MHXW告警类型: &#123;&#123; $alert.Labels.alertname &#125;&#125;</span><br><span class="line">告警级别: &#123;&#123; $alert.Labels.level &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">=====================</span><br><span class="line">MHXW告警主题: &#123;&#123; $alert.Annotations.summary &#125;&#125;</span><br><span class="line">MHXW告警详情: &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">MHXW故障时间: &#123;&#123; (.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">&#123;&#123; if gt (len $alert.Labels.instance) 0 -&#125;&#125;故障实例: &#123;&#123; $alert.Labels.instance &#125;&#125;&#123;&#123;- end -&#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;- if gt (len .Alerts.Resolved) 0 -&#125;&#125;</span><br><span class="line">&#123;&#123;- range $index, $alert := .Alerts -&#125;&#125;</span><br><span class="line">&#123;&#123;- if eq $index 0 -&#125;&#125;</span><br><span class="line">**********恢复通知**********</span><br><span class="line">告警类型: &#123;&#123; $alert.Labels.alertname &#125;&#125;</span><br><span class="line">告警级别: &#123;&#123; $alert.Labels.level &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">=====================</span><br><span class="line">告警主题: &#123;&#123; $alert.Annotations.summary &#125;&#125;</span><br><span class="line">告警详情: &#123;&#123; $alert.Annotations.description &#125;&#125;</span><br><span class="line">故障时间: &#123;&#123; (.StartsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">恢复时间: &#123;&#123; (.EndsAt.Add 28800e9).Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;</span><br><span class="line">&#123;&#123; if gt (len $alert.Labels.instance) 0 -&#125;&#125;故障实例: &#123;&#123; $alert.Labels.instance &#125;&#125;&#123;&#123;- end -&#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line">&#123;&#123;- end &#125;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>配置说明</p>
+<ul>
+<li><p>global: 全局配置，包括报警解决后的超时时间、SMTP 相关配置、各种渠道通知的 API 地址等等。</p>
+</li>
+<li><p>route: 用来设置报警的分发策略，它是一个树状结构，按照深度优先从左向右的顺序进行匹配。</p>
+</li>
+<li><p>receivers: 配置告警消息接受者信息，例如常用的 email、wechat、slack、webhook 等消息通知方式。</p>
+</li>
+<li><p>inhibit_rules: 抑制规则配置，当存在与另一组匹配的警报（源）时，抑制规则将禁用与一组匹配的警报（目标）。</p>
+</li>
+<li><p>smtp_smarthost: 这里为 QQ 邮箱 SMTP 服务地址，官方地址 smtp.qq.com 端口为 465 或 587，同时设置开启 POP3/SMTP 服务。</p>
+</li>
+<li><p>smtp_auth_password: 这里为第三方登录 QQ 邮箱的授权码，非 QQ 账户登录密码，否则会报错，获取方式在 QQ 邮箱服务端设置开启 POP3/SMTP 服务时会提示。</p>
+</li>
+</ul>
+<h3 id="4、检查AlertManager配置文件"><a href="#4、检查AlertManager配置文件" class="headerlink" title="4、检查AlertManager配置文件"></a>4、检查AlertManager配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/Prometheus/alertmanager/amtool check-config /usr/local/Prometheus/alertmanager/alertmanager.yml</span><br></pre></td></tr></table></figure>
+
+<h3 id="5、启动AlertManager"><a href="#5、启动AlertManager" class="headerlink" title="5、启动AlertManager"></a>5、启动AlertManager</h3><p>一种是采用<code>tmux</code>方式</p>
+<ul>
+<li>新建会话</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux new -s alertmanager</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>进入会话</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tmux a -t alertmanager</span><br><span class="line">/mhxw/prometheus/alertmanager/alertmanager --config.file=/mhxw/prometheus/alertmanager/alertmanager.yml --web.listen-address=:1998</span><br></pre></td></tr></table></figure>
+
+<p>一种是<code>systemd</code>采用开机启动方式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; /etc/systemd/system/alertmanager.service &lt;&lt; &quot;EOF&quot;</span><br><span class="line">[Unit]</span><br><span class="line">Description=alertmanager</span><br><span class="line">After=local-fs.target network-online.target network.target</span><br><span class="line">Wants=local-fs.target network-online.target network.target</span><br><span class="line"> </span><br><span class="line">[Service]</span><br><span class="line">ExecStart=/mhxw/prometheus/alertmanager/alertmanager --config.file=/mhxw/prometheus/alertmanager/alertmanager.yml --web.listen-address=:1998</span><br><span class="line">Restart=on-failure</span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line"></span><br><span class="line">systemctl enable alertmanager</span><br><span class="line"></span><br><span class="line">systemctl start alertmanager</span><br><span class="line"></span><br><span class="line">systemctl status alertmanager</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、重新配置Prometheus"><a href="#四、重新配置Prometheus" class="headerlink" title="四、重新配置Prometheus"></a>四、重新配置Prometheus</h2><h3 id="1、编辑prometheus-yml"><a href="#1、编辑prometheus-yml" class="headerlink" title="1、编辑prometheus.yml"></a>1、编辑prometheus.yml</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /mhxw/prometheus/prometheus/prometheus.yml</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>告警配置连接</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Alertmanager configuration</span></span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">       - alertmanager:1998</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开启告警配置</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rule_files:</span><br><span class="line">   - &quot;rules/*.yml&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>监控AlertManager</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- job_name: &#x27;alertmanager&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">      - targets: [&#x27;localhost:1998&#x27;]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>文件内容</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> my global config</span></span><br><span class="line">global:</span><br><span class="line">  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.</span><br><span class="line">  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.</span><br><span class="line"><span class="meta">  #</span><span class="bash"> scrape_timeout is <span class="built_in">set</span> to the global default (10s).</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Alertmanager configuration</span></span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets: [&quot;localhost:1998&quot;]</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Load rules once and periodically evaluate them according to the global <span class="string">&#x27;evaluation_interval&#x27;</span>.</span></span><br><span class="line">rule_files:</span><br><span class="line">   - &quot;rules/*.yml&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash"> - <span class="string">&quot;second_rules.yml&quot;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> A scrape configuration containing exactly one endpoint to scrape:</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Here it<span class="string">&#x27;s Prometheus itself.</span></span></span><br><span class="line">scrape_configs:</span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="string"> The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span></span></span><br><span class="line">  - job_name: &#x27;prometheus&#x27;</span><br><span class="line"></span><br><span class="line">    # metrics_path defaults to &#x27;/metrics&#x27;</span><br><span class="line">    # scheme defaults to &#x27;http&#x27;.</span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;localhost:9090&#x27;]</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="string">追加以下内容</span></span></span><br><span class="line">  - job_name: &#x27;node_exporter-1&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;localhost:9101&#x27;] #安装node_exporter的服务器</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="string">追加以下内容</span></span></span><br><span class="line">  - job_name: &#x27;mhxw&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;47.242.76.64:26635&#x27;] #安装mhxw的服务器</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="string">追加以下内容</span></span></span><br><span class="line">  - job_name: &#x27;alertmanager&#x27;</span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [&#x27;localhost:1998&#x27;] #alertmanager</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>检查并重新加载配置文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/Prometheus/promtool check config /usr/local/Prometheus/prometheus.yml</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、创建告警目录-amp-添加报警规则"><a href="#2、创建告警目录-amp-添加报警规则" class="headerlink" title="2、创建告警目录&amp;添加报警规则"></a>2、创建告警目录&amp;添加报警规则</h3><p>在prometheus.yml的同级目录下，创建rules目录，在该rules目录下创建node_alerts.yml文件，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir rules &amp;&amp; cd rules/</span><br><span class="line"></span><br><span class="line">touch node_alerts.yml</span><br></pre></td></tr></table></figure>
+
+<p>文件内容</p>
+<blockquote>
+<p>注意</p>
+<p>为了方便测试，我这里把调整磁盘使用率阀值测试报警调整到1，然后重新加载配置。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">groups:</span><br><span class="line">  - name: node_status</span><br><span class="line">    rules:</span><br><span class="line">    - alert: DiskUsageAlert_warning</span><br><span class="line">      expr: (1 - node_filesystem_free_bytes&#123;fstype!=&quot;rootfs&quot;,mountpoint!=&quot;&quot;,mountpoint!~&quot;/(run|var|sys|dev).*&quot;&#125; / node_filesystem_size_bytes) * 100 &gt; 1</span><br><span class="line">      for: 2m</span><br><span class="line">      labels:</span><br><span class="line">        level: warning</span><br><span class="line">      annotations:</span><br><span class="line">        summary: &quot;主机 &#123;&#123; $labels.instance &#125;&#125; 磁盘使用率高&quot;</span><br><span class="line">        description: &quot;&#123;&#123;$labels.instance&#125;&#125;: 磁盘使用率超过80％ (当前占比为: &#123;&#123; $value &#125;&#125;)&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、重启Prometheus"><a href="#3、重启Prometheus" class="headerlink" title="3、重启Prometheus"></a>3、重启Prometheus</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart prometheus</span><br></pre></td></tr></table></figure>
+
+<p>警报有三种状态：</p>
+<ul>
+<li><p>Inactive 警报未激活；</p>
+</li>
+<li><p>Pending：警报已满足测试表达式条件，但未达到for指定的持续时间；</p>
+</li>
+<li><p>Firing：警报满足测试表达式条件，且持续时间达到了for指定的持续时间；</p>
+</li>
+</ul>
+<h3 id="4、查看邮件"><a href="#4、查看邮件" class="headerlink" title="4、查看邮件"></a>4、查看邮件</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">https://zhuanlan.zhihu.com/p/74932366</span><br><span class="line">http://www.linuxe.cn/post-514.html</span><br><span class="line">https://www.cnblogs.com/longcnblogs/p/9620733.html</span><br><span class="line">https://www.cnblogs.com/jiujuan/p/13262380.html</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/prometheus/" rel="tag"># prometheus</a>
+              <a href="/tags/alertmanager/" rel="tag"># alertmanager</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-04-25-install-prometheus-on-linux/" rel="prev" title="Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控">
+                  <i class="fa fa-chevron-left"></i> Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-05-09--instll-nginx-on-ubuntu/" rel="next" title="Ubuntu 20.04 安装Nginx到指定目录">
+                  Ubuntu 20.04 安装Nginx到指定目录 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">美H向W</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

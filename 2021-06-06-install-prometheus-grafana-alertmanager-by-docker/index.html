@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.life","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="一、介绍本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。  Prometheus+Grafana监控部署 Prometheus监控平台AlertManager配置告警 Pushgateway 的安装和使用  Prometheus是一款基于时序数据库的开源监控告警系统。 主要特性（功能）#  多维数据模型（时序由 metric 名字和 k&#x2F;v 的labels构成） 灵活的查">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Docker安装Prometheus+Grafana+AlertManager">
+<meta property="og:url" content="https://mhxw.life/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="一、介绍本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。  Prometheus+Grafana监控部署 Prometheus监控平台AlertManager配置告警 Pushgateway 的安装和使用  Prometheus是一款基于时序数据库的开源监控告警系统。 主要特性（功能）#  多维数据模型（时序由 metric 名字和 k&#x2F;v 的labels构成） 灵活的查">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-06T00:00:00.000Z">
+<meta property="article:modified_time" content="2021-10-20T02:48:47.478Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="grafana">
+<meta property="article:tag" content="alertmanager">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.life/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://mhxw.life/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/","path":"2021-06-06-install-prometheus-grafana-alertmanager-by-docker/","title":"使用Docker安装Prometheus+Grafana+AlertManager"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用Docker安装Prometheus+Grafana+AlertManager | MHXW</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">MHXW</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85-Prometheus"><span class="nav-text">二、安装 Prometheus</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-node-exporter"><span class="nav-text">三、安装 node-exporter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%89%E8%A3%85-Grafana"><span class="nav-text">四、安装 Grafana</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%89%E8%A3%85AlertManager"><span class="nav-text">五、安装AlertManager</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-text">常见错误处理</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/mhxw" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;mhxw" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mhxw" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.life/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Docker安装Prometheus+Grafana+AlertManager
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2021-06-06T00:00:00Z">2021-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/" itemprop="url" rel="index"><span itemprop="name">运维监控</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。</p>
+<ul>
+<li><a href="/2021/04/25/2021-4-25-install-prometheus-on-linux/">Prometheus+Grafana监控部署</a></li>
+<li><a href="/2021/05/02/2021-5-2-prometheus-alertmanager/">Prometheus监控平台AlertManager配置告警</a></li>
+<li><a href="/2021/06/06/2021-6-6-pushgateway/">Pushgateway 的安装和使用</a></li>
+</ul>
+<p>Prometheus是一款基于时序数据库的开源监控告警系统。</p>
+<p>主要特性（功能）#</p>
+<ul>
+<li>多维数据模型（时序由 metric 名字和 k/v 的labels构成）</li>
+<li>灵活的查询语言（PromQL）</li>
+<li>无依赖的分布式存储；单节点服务器都是自治的</li>
+<li>采用 http 协议，使用pull模式拉取数据，简单易懂</li>
+<li>监控目标，可以采用服务发现和静态配置方式</li>
+<li>支持多种统计数据模型和界面展示。可以和Grafana结合展示。<span id="more"></span>
+<h2 id="二、安装-Prometheus"><a href="#二、安装-Prometheus" class="headerlink" title="二、安装 Prometheus"></a>二、安装 Prometheus</h2></li>
+</ul>
+<p>1.首先创建一个配置文件 <code>prometheus.yml</code></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus.yml">官方模板</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建数据盘目录</span></span><br><span class="line">mkdir -p /mhxw/monitor/prometheus</span><br></pre></td></tr></table></figure>
+
+<p>把编辑好的配置文件 <code>prometheus.yml</code> 放置到 <code>prometheus</code> 目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=prometheus -d -p 20602:9090 \</span><br><span class="line">-v /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">prom/prometheus</span><br></pre></td></tr></table></figure>
+
+<p>配置说明</p>
+<ul>
+<li>–config.file prometheus配置文件路径</li>
+<li>–storage.tsdb.retention.time 保存时间</li>
+<li>–storage.tsdb.path 数据存储路径</li>
+<li>-v：冒号”:”前面的目录是宿主机目录，后面的目录是容器内目录。</li>
+<li>-p：冒号”:”前面的目录是宿主机端口，后面的目录是容器内端口。</li>
+</ul>
+<blockquote>
+<p>注意</p>
+<p>有没有发现默认使用 static_configs 静态配置方式，虽然可以正确配置，但是每次配置都需要重启 Prometheus 服务，当我们需要分批次添加很多 Node 时，频繁重启服务就会造成监控的多次中断，这太不友好了。当然 Prometheus 也提供了多种服务发现方式</p>
+</blockquote>
+<ul>
+<li>自动发现</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- labels:</span><br><span class="line">    name: two</span><br><span class="line">  targets: [&quot;148.153.72.214:20406&quot;,&quot;148.153.72.214:20407&quot;,&quot;148.153.72.214:20408&quot;,&quot;148.153.72.214:20409&quot;,&quot;148.153.72.214:20410&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、安装-node-exporter"><a href="#三、安装-node-exporter" class="headerlink" title="三、安装 node-exporter"></a>三、安装 node-exporter</h2><p>编辑 <code>prometheus.yml</code> 将node_exporter加上。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- job_name: &#x27;node_exporter&#x27;</span><br><span class="line">  static_configs:</span><br><span class="line">  - targets: [&quot;localhost:14202&quot;]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>安装并启动</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --net=&quot;host&quot; \</span><br><span class="line">  --pid=&quot;host&quot; \</span><br><span class="line">  --name=node-exporter \</span><br><span class="line">  -v &quot;/:/host:ro,rslave&quot; \</span><br><span class="line">  prom/node-exporter \</span><br><span class="line">  --path.rootfs /host</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重启docker prometheus，让刚才修改的配置生效</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart prometheus</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、安装-Grafana"><a href="#四、安装-Grafana" class="headerlink" title="四、安装 Grafana"></a>四、安装 Grafana</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 14206:3000 --name=grafana grafana/grafana</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器输入 ip:端口 显示 grafana 则表示安装成功</p>
+<h2 id="五、安装AlertManager"><a href="#五、安装AlertManager" class="headerlink" title="五、安装AlertManager"></a>五、安装AlertManager</h2><blockquote>
+<p>注意</p>
+<p>AlertManager 默认配置文件为<code>alertmanager.yml</code>,AlertManager容器内的配置文件为：<code>/etc/alertmanager/alertmanager.yml</code></p>
+</blockquote>
+<ul>
+<li>启动 AlertManager</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 14207:9093 --name alertmanager \</span><br><span class="line">-v /mhxw/monitor/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/:/etc/alertmanager/config/ \</span><br><span class="line">prom/alertmanager</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>AlertManager 参考文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">global:</span><br><span class="line">  resolve_timeout: 5m</span><br><span class="line">  smtp_smarthost: &quot;smtp.qq.com:587&quot;</span><br><span class="line">  smtp_from: &quot;xxxx@qq.com&quot;</span><br><span class="line">  smtp_auth_username: &quot;xxxx@qq.com&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash">邮箱专用授权码</span></span><br><span class="line">  smtp_auth_password: &quot;xxxx&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash">关闭TLS授权</span></span><br><span class="line">  smtp_require_tls: true</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash">自定义告警模板</span></span><br><span class="line">templates:</span><br><span class="line">  - &quot;/etc/alertmanager/config/alert-temp/*.tmpl&quot;</span><br><span class="line"></span><br><span class="line">route:</span><br><span class="line">  group_by: [&#x27;swarm_status&#x27;,&#x27;node_status&#x27;]</span><br><span class="line">  group_wait: 30s</span><br><span class="line">  group_interval: 20m</span><br><span class="line">  repeat_interval: 1h</span><br><span class="line">  receiver: &#x27;swarm_receiver&#x27;</span><br><span class="line">receivers:</span><br><span class="line">- name: &#x27;swarm_receiver&#x27;</span><br><span class="line">  email_configs:</span><br><span class="line">    - to: &#x27;xxxx@qq.com&#x27;</span><br><span class="line">      send_resolved: true</span><br><span class="line">inhibit_rules:</span><br><span class="line">  - source_match:</span><br><span class="line">      severity: &#x27;critical&#x27;</span><br><span class="line">    target_match:</span><br><span class="line">      severity: &#x27;warning&#x27;</span><br><span class="line">    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新配置 Prometheus</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets: [&#x27;172.31.10.69:14207&#x27;]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置说明：</li>
+</ul>
+<p>告诉prometheus，放生告警时，将告警信息发送到Alertmanager，Alertmanager地址为 <a target="_blank" rel="noopener" href="http://172.31.10.69:14207/">http://172.31.10.69:14207</a></p>
+<ul>
+<li>删除Prometheus之前容器，重新运行</li>
+</ul>
+<ol>
+<li><p>先用<code>docker ps</code>查看prometheus容器ID</p>
+</li>
+<li><p>停掉容器 <code>docker stop ***</code></p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop prometheus</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>删掉这个容器 <code>docker rm ***</code></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm prometheus</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新启动容器</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=prometheus -d -p 14204:9090 \</span><br><span class="line">-v /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/zhangZhang.yml:/etc/prometheus/zhangZhang.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/mhxw_node_exporter.yml:/etc/prometheus/mhxw_node_exporter.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/laoCui.yml:/etc/prometheus/laoCui.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/rules/alert-rules-node.yml:/etc/prometheus/rules/alert-rules-node.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/rules/alert-rules-mhxw.yml:/etc/prometheus/rules/alert-rules-mhxw.yml \</span><br><span class="line">prom/prometheus</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=prometheus -d -p 14204:9090 \</span><br><span class="line">-v /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/:/etc/prometheus/config/ \</span><br><span class="line">prom/prometheus</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://cloud.tencent.com/developer/article/1486483</span><br></pre></td></tr></table></figure>
+
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li><p>bee_export</p>
+</li>
+<li><p>prometheus</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=prometheus -d -p 20603:9090 \</span><br><span class="line">-v /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \</span><br><span class="line">-v /mhxw/monitor/prometheus/:/etc/prometheus/config/ \</span><br><span class="line">prom/prometheus</span><br><span class="line"></span><br><span class="line">docker logs -f prometheus</span><br><span class="line"></span><br><span class="line">docker stop prometheus</span><br><span class="line"></span><br><span class="line">docker rm prometheus</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>alertmanager</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 20604:9093 --name alertmanager \</span><br><span class="line">-v /mhxw/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml \</span><br><span class="line">-v /mhxw/prometheus/:/etc/alertmanager/config/ \</span><br><span class="line">prom/alertmanager</span><br><span class="line"></span><br><span class="line">docker stop alertmanager</span><br><span class="line"></span><br><span class="line">docker rm alertmanager</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>bee_export</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run --restart unless-stopped \</span><br><span class="line">  -d -p 20601:20601 \</span><br><span class="line">	--name=bee_export \</span><br><span class="line">	--log-opt max-size=20m \</span><br><span class="line">	--log-opt max-file=3 \</span><br><span class="line">	-v /mhxw/monitor/bee_export/info.json:/usr/local/bin/info.json \</span><br><span class="line">	sgswarm/bee_export:0.0.6 -path /usr/local/bin/info.json</span><br><span class="line"></span><br><span class="line">docker stop bee_export</span><br><span class="line"></span><br><span class="line">docker rm bee_export</span><br></pre></td></tr></table></figure>
+
+<h2 id="常见错误处理"><a href="#常见错误处理" class="headerlink" title="常见错误处理"></a>常见错误处理</h2><ul>
+<li>问题一</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">level=error ts=2021-06-25T02:55:06.818Z caller=query_logger.go:87 component=activeQueryTracker msg=&quot;Error opening query log file&quot; file=/prometheus/queries.active err=&quot;open /prometheus/queries.active: permission denied&quot;</span><br><span class="line">panic: Unable to create mmap-ed active query log</span><br><span class="line"></span><br><span class="line">goroutine 1 [running]:</span><br><span class="line">github.com/prometheus/prometheus/promql.NewActiveQueryTracker(0x7ffde0177f57, 0xb, 0x14, 0x375eea0, 0xc000092c80, 0x375eea0)</span><br><span class="line">        /app/promql/query_logger.go:117 +0x4e8</span><br><span class="line">main.main()</span><br><span class="line">        /app/cmd/prometheus/main.go:462 +0x5990</span><br></pre></td></tr></table></figure>
+
+<p>启动命令造成</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-v /mhxw/monitor/prometheus/data:/prometheus \</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>问题二</li>
+</ul>
+<p>docker启动时候，prometheus命令放在镜像名后面</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/prometheus/" rel="tag"># prometheus</a>
+              <a href="/tags/grafana/" rel="tag"># grafana</a>
+              <a href="/tags/alertmanager/" rel="tag"># alertmanager</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-06-06-pushgateway/" rel="prev" title="Pushgateway 的安装和使用">
+                  <i class="fa fa-chevron-left"></i> Pushgateway 的安装和使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-06-06-docker/" rel="next" title="Linux运维和Docker 相关使用">
+                  Linux运维和Docker 相关使用 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">美H向W</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

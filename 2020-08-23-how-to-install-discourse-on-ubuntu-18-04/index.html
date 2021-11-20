@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.life","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="介绍Docker环境中安装Discourse，并配置独立的Nginx和SSL 安装docker可查看ubuntu安装docker 下载最新版在下载和安装Discourse之前，请创建&#x2F;var&#x2F;discourse目录。这是您所有与Discourse相关的文件所在的位置： script1sudo mkdir &#x2F;var&#x2F;discourse  将官方Discourse Docker镜像 复制到&#x2F;var&#x2F;d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在Ubuntu 18.04上安装Discourse Docker镜像">
+<meta property="og:url" content="https://mhxw.life/2020-08-23-how-to-install-discourse-on-ubuntu-18-04/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="介绍Docker环境中安装Discourse，并配置独立的Nginx和SSL 安装docker可查看ubuntu安装docker 下载最新版在下载和安装Discourse之前，请创建&#x2F;var&#x2F;discourse目录。这是您所有与Discourse相关的文件所在的位置： script1sudo mkdir &#x2F;var&#x2F;discourse  将官方Discourse Docker镜像 复制到&#x2F;var&#x2F;d">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-08-23T21:00:00.000Z">
+<meta property="article:modified_time" content="2021-09-27T04:54:11.570Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="ubuntu">
+<meta property="article:tag" content="ssh">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.life/2020-08-23-how-to-install-discourse-on-ubuntu-18-04/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://mhxw.life/2020-08-23-how-to-install-discourse-on-ubuntu-18-04/","path":"2020-08-23-how-to-install-discourse-on-ubuntu-18-04/","title":"如何在Ubuntu 18.04上安装Discourse Docker镜像"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何在Ubuntu 18.04上安装Discourse Docker镜像 | MHXW</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">MHXW</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85docker"><span class="nav-text">安装docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E6%9C%80%E6%96%B0%E7%89%88"><span class="nav-text">下载最新版</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE"><span class="nav-text">安装和配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E7%AE%A1%E7%90%86%E5%91%98%E8%B4%A6%E6%88%B7"><span class="nav-text">注册管理员账户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7Discourse"><span class="nav-text">升级Discourse</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AENginx%E5%92%8CSSL"><span class="nav-text">配置Nginx和SSL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/mhxw" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;mhxw" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/mhxw" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.life/2020-08-23-how-to-install-discourse-on-ubuntu-18-04/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何在Ubuntu 18.04上安装Discourse Docker镜像
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-23 21:00:00" itemprop="dateCreated datePublished" datetime="2020-08-23T21:00:00Z">2020-08-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF%E8%BF%90%E8%90%A5/" itemprop="url" rel="index"><span itemprop="name">技术运营</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Docker环境中安装Discourse，并配置独立的Nginx和SSL</p>
+<h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>可查看<a href="/2020/08/22/install-docker-on-ubuntu/">ubuntu安装docker</a></p>
+<h2 id="下载最新版"><a href="#下载最新版" class="headerlink" title="下载最新版"></a>下载最新版</h2><p>在下载和安装Discourse之前，请创建<code>/var/discourse</code>目录。这是您所有与Discourse相关的文件所在的位置：</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /var/discourse</span><br></pre></td></tr></table></figure>
+
+<p>将官方<a target="_blank" rel="noopener" href="https://github.com/discourse/discourse_docker">Discourse Docker镜像</a> 复制到<code>/var/discourse</code>：</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo git clone https://github.com/discourse/discourse_docker.git /var/discourse</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<h2 id="安装和配置"><a href="#安装和配置" class="headerlink" title="安装和配置"></a>安装和配置</h2><p>进入目录</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /var/discourse</span><br></pre></td></tr></table></figure>
+
+<p>启动脚本</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./discourse-setup</span><br></pre></td></tr></table></figure>
+
+<p>Discourse安装过程会询问以下问题</p>
+<ul>
+<li>您的discourse的主机名</li>
+</ul>
+<p>discourse.your_domain：您的域名</p>
+<ul>
+<li>管理员帐户的电子邮件地址配置</li>
+</ul>
+<p>以qq邮箱为例</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> SMTP 服务器</span></span><br><span class="line">SMTP server address：smtp.qq.com</span><br><span class="line"><span class="meta">#</span><span class="bash"> 给用户发邮件的邮箱账户</span></span><br><span class="line">SMTP user name：send@domain.com</span><br><span class="line"><span class="meta">#</span><span class="bash"> 端口</span></span><br><span class="line">SMTP port：587</span><br><span class="line"><span class="meta">#</span><span class="bash"> SMTP密码</span></span><br><span class="line">SMTP password：这里填qq邮箱授权码</span><br></pre></td></tr></table></figure>
+
+<h2 id="注册管理员账户"><a href="#注册管理员账户" class="headerlink" title="注册管理员账户"></a>注册管理员账户</h2><p>上述均填好之后，等待2-8min的安装，安装成功之后打开你的域名就可以看到管理员注册。如果这一步出现问题无法收到管理员发的邮件，再继续下面步骤，否则可以略过。</p>
+<ul>
+<li>编辑app.yml文件</li>
+</ul>
+<ol>
+<li>位置在<code>containers/app.yml</code>，如果没有复制下面这个文件</li>
+</ol>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /var/discourse</span><br><span class="line">cp samples/standalone.yml containers/app.yml</span><br><span class="line">vim containers/app.yml</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>修改以下几处内容</li>
+</ol>
+<p>完整代码可参考最底部代码块</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 网站域名</span></span><br><span class="line">DISCOURSE_HOSTNAME: &#x27;domain.com&#x27;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 管理员邮箱</span></span><br><span class="line">DISCOURSE_DEVELOPER_EMAILS: &#x27;admin@qq.com&#x27;</span><br><span class="line"></span><br><span class="line">DISCOURSE_SMTP_ADDRESS: smtp.qq.com</span><br><span class="line">DISCOURSE_SMTP_PORT: 587</span><br><span class="line">DISCOURSE_SMTP_USER_NAME: xxxx@foxmail.com</span><br><span class="line"><span class="meta">#</span><span class="bash"> qq邮箱授权码 在qq邮箱=》设置=》账户=》开启smtp服务</span></span><br><span class="line">DISCOURSE_SMTP_PASSWORD:&quot;pwd&quot;</span><br><span class="line">DISCOURSE_SMTP_ENABLE_START_TLS: true </span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># 发件邮箱：配置文件最底下找这一行</span></span></span><br><span class="line">- exec: rails r &quot;SiteSetting.notification_email=&#x27;xxxx@foxmail.com&#x27;&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="升级Discourse"><a href="#升级Discourse" class="headerlink" title="升级Discourse"></a>升级Discourse</h2><p>升级过程中注意规则的改变，例如升级可能加了新的规则自动删除不活跃的好友，多留意官方动态</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /var/discourse</span><br><span class="line">sudo git pull</span><br><span class="line">sudo ./launcher rebuild app</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置Nginx和SSL"><a href="#配置Nginx和SSL" class="headerlink" title="配置Nginx和SSL"></a>配置Nginx和SSL</h2><ol>
+<li>编辑<code>app.yml</code>文件，做以下操作</li>
+</ol>
+<ul>
+<li>注释掉中的所有ssl模板templates</li>
+</ul>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">- <span class="string">&quot;templates/web.ssl.template.yml&quot;</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">- <span class="string">&quot;templates/web.letsencrypt.ssl.template.yml&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>添加套接字模板：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- &quot;templates/web.socketed.template.yml&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意事项<br>套接字模板配置文件中也需要配置discourse.conf文件，如果没有按照路径创建一个并配置</p>
+</blockquote>
+<p><code>web.socketed.template.yml</code>配置文件如下</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">run:</span><br><span class="line">  - file:</span><br><span class="line">     path: /etc/runit/1.d/remove-old-socket</span><br><span class="line">     chmod: &quot;+x&quot;</span><br><span class="line">     contents: |</span><br><span class="line">        #!/bin/bash</span><br><span class="line">        rm -f /shared/nginx.http*.sock</span><br><span class="line">  - file:</span><br><span class="line">     path: /etc/runit/3.d/remove-old-socket</span><br><span class="line">     chmod: &quot;+x&quot;</span><br><span class="line">     contents: |</span><br><span class="line">        #!/bin/bash</span><br><span class="line">        rm -rf /shared/nginx.http*.sock</span><br><span class="line">  - replace:</span><br><span class="line">     filename: &quot;/etc/nginx/conf.d/discourse.conf&quot;</span><br><span class="line">     from: /listen 80;/</span><br><span class="line">     to: |</span><br><span class="line">       listen unix:/shared/nginx.http.sock;</span><br><span class="line">       set_real_ip_from unix:;</span><br><span class="line">  - replace:</span><br><span class="line">     filename: &quot;/etc/nginx/conf.d/discourse.conf&quot;</span><br><span class="line">     from: /listen 443 ssl http2;/</span><br><span class="line">     to: |</span><br><span class="line">       listen unix:/shared/nginx.https.sock ssl http2;</span><br><span class="line">       set_real_ip_from unix:;</span><br></pre></td></tr></table></figure>
+
+<p><code>discourse.conf</code>配置文件如下（和下面步骤的nginx.conf配置代码块基本一样）</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 80;</span><br><span class="line">  server_name mhxw.com;</span><br><span class="line">  return 301 https://$host$request_uri;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen       443 ssl;</span><br><span class="line">  server_name  mhxw.com;</span><br><span class="line"></span><br><span class="line">  ssl_certificate      /mhxw/nginx/conf/ssl/mhxw.crt;</span><br><span class="line">  ssl_certificate_key  /mhxw/nginx/conf/ssl/mhxw.key;</span><br><span class="line">  ssl_session_timeout 5m;</span><br><span class="line">  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #按照这个协议配置</span><br><span class="line">  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; #按照这个套件配置</span><br><span class="line">  ssl_prefer_server_ciphers on;</span><br><span class="line">  access_log  /mhxw/nginx/logs/access.log  main;</span><br><span class="line">  error_log  /mhxw/nginx/logs/error.log  debug;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">   add_header Content-Security-Policy &quot;upgrade-insecure-requests;connect-src *&quot;;</span><br><span class="line">      proxy_pass http://unix:/var/discourse/shared/standalone/nginx.http.sock:;</span><br><span class="line">      proxy_set_header Host $http_host;</span><br><span class="line">      proxy_http_version 1.1;</span><br><span class="line">      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">      proxy_set_header X-Forwarded-Proto https;</span><br><span class="line">      proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注释掉所有暴露的端口：</li>
+</ul>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">- <span class="string">&quot;8090:80&quot;</span>   <span class="comment"># http</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">- <span class="string">&quot;8091:443&quot;</span> <span class="comment"># https</span></span></span><br></pre></td></tr></table></figure>
+
+<p>修改好以后，<code>app.yml</code>配置文件如下</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line">templates:</span><br><span class="line">  - &quot;templates/postgres.template.yml&quot;</span><br><span class="line">  - &quot;templates/redis.template.yml&quot;</span><br><span class="line">  - &quot;templates/web.template.yml&quot;</span><br><span class="line">  - &quot;templates/web.ratelimited.template.yml&quot;</span><br><span class="line">  - &quot;templates/web.socketed.template.yml&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># Uncomment these two lines if you wish to add Lets Encrypt (https)</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">- <span class="string">&quot;templates/web.ssl.template.yml&quot;</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">- <span class="string">&quot;templates/web.letsencrypt.ssl.template.yml&quot;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># which TCP/IP ports should this container expose?</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># If you want Discourse to share a port with another webserver like Apache or nginx,</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># see https://meta.discourse.org/t/17247 for details</span></span></span><br><span class="line">expose:</span><br><span class="line">        #- &quot;8090:80&quot;   # http</span><br><span class="line">        #- &quot;8091:443&quot; # https</span><br><span class="line"></span><br><span class="line">params:</span><br><span class="line">  db_default_text_search_config: &quot;pg_catalog.english&quot;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Set db_shared_buffers to a max of 25% of the total memory.</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># will be set automatically by bootstrap based on detected RAM, or you can override</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">db_shared_buffers: <span class="string">&quot;256MB&quot;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># can improve sorting performance, but adds memory usage per-connection</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">db_work_mem: <span class="string">&quot;40MB&quot;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Which Git revision should this container use? (default: tests-passed)</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">version: tests-passed</span></span><br><span class="line"></span><br><span class="line">env:</span><br><span class="line">  LANG: en_US.UTF-8</span><br><span class="line"><span class="meta">  #</span><span class="bash"> DISCOURSE_DEFAULT_LOCALE: en</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># How many concurrent web requests are supported? Depends on memory and CPU cores.</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># will be set automatically by bootstrap based on detected CPUs, or you can override</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">UNICORN_WORKERS: 3</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># <span class="doctag">TODO:</span> The domain name this Discourse instance will respond to</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Required. Discourse will not work with a bare IP number.</span></span></span><br><span class="line">  DISCOURSE_HOSTNAME: &#x27;mhxw.com&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># Uncomment if you want the container to be started with the same</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># hostname (-h option) as specified above (default &quot;$hostname-$config&quot;)</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">DOCKER_USE_HOSTNAME: <span class="literal">true</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># <span class="doctag">TODO:</span> List of comma delimited emails that will be made admin and developer</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># on initial signup example &#x27;user1@example.com,user2@example.com&#x27;</span></span></span><br><span class="line">  DISCOURSE_DEVELOPER_EMAILS: &#x27;hi@mhxw.com&#x27;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># <span class="doctag">TODO:</span> The SMTP mail server used to validate new accounts and send notifications</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"> SMTP ADDRESS, username, and password are required</span></span><br><span class="line"><span class="meta">  #</span><span class="bash"> WARNING the char <span class="string">&#x27;#&#x27;</span> <span class="keyword">in</span> SMTP password can cause problems!</span></span><br><span class="line">  DISCOURSE_SMTP_ADDRESS: smtp.qq.com</span><br><span class="line">  DISCOURSE_SMTP_PORT: 587</span><br><span class="line">  DISCOURSE_SMTP_USER_NAME: sender@mhxw.com</span><br><span class="line">  DISCOURSE_SMTP_PASSWORD: kknvfghgfqrbcee</span><br><span class="line">  DISCOURSE_SMTP_ENABLE_START_TLS: true           # (optional, default true)</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># If you added the Lets Encrypt template, uncomment below to get a free SSL certificate</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">LETSENCRYPT_ACCOUNT_EMAIL: me@example.com</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># The http or https CDN address for this Discourse instance (configured to pull)</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># see https://meta.discourse.org/t/14857 for details</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash">DISCOURSE_CDN_URL: https://discourse-cdn.example.com</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># The Docker container is stateless; all data is stored in /shared</span></span></span><br><span class="line">volumes:</span><br><span class="line">  - volume:</span><br><span class="line">      host: /var/discourse/shared/standalone</span><br><span class="line">      guest: /shared</span><br><span class="line">  - volume:</span><br><span class="line">      host: /var/discourse/shared/standalone/log/var-log</span><br><span class="line">      guest: /var/log</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># Plugins go here</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># see https://meta.discourse.org/t/19157 for details</span></span></span><br><span class="line">hooks:</span><br><span class="line">  after_code:</span><br><span class="line">    - exec:</span><br><span class="line">        cd: $home/plugins</span><br><span class="line">        cmd:</span><br><span class="line">          - git clone https://github.com/discourse/docker_manager.git</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="comment"># Any custom commands to run after building</span></span></span><br><span class="line">run:</span><br><span class="line">  - exec: echo &quot;Beginning of custom commands&quot;</span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># If you want to set the &#x27;From&#x27; email address for your first registration, uncomment and change:</span></span></span><br><span class="line"><span class="meta">  #</span><span class="bash"><span class="comment"># After getting the first signup email, re-comment the line. It only needs to run once.</span></span></span><br><span class="line">  - exec: rails r &quot;SiteSetting.notification_email=&#x27;sender@mhxw.com&#x27;&quot;</span><br><span class="line">  - exec: echo &quot;End of custom commands&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编辑<code>nginx.conf</code>并重新加载</li>
+</ol>
+<p>nginx.conf 配置文件如下</p>
+<figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen 80;</span><br><span class="line">  server_name mhxw.com;</span><br><span class="line">  return 301 https://$host$request_uri;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen       443 ssl;</span><br><span class="line">  server_name  mhxw.com;</span><br><span class="line"></span><br><span class="line">  ssl_certificate      /mhxw/nginx/conf/ssl/mhxw.crt;</span><br><span class="line">  ssl_certificate_key  /mhxw/nginx/conf/ssl/mhxw.key;</span><br><span class="line">  ssl_session_timeout 5m;</span><br><span class="line">  ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #按照这个协议配置</span><br><span class="line">  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE; #按照这个套件配置</span><br><span class="line">  ssl_prefer_server_ciphers on;</span><br><span class="line">  access_log  /mhxw/nginx/logs/access.log  main;</span><br><span class="line">  error_log  /mhxw/nginx/logs/error.log  debug;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">   add_header Content-Security-Policy &quot;upgrade-insecure-requests;connect-src *&quot;;</span><br><span class="line">      proxy_pass http://unix:/var/discourse/shared/standalone/nginx.http.sock:;</span><br><span class="line">      proxy_set_header Host $http_host;</span><br><span class="line">      proxy_http_version 1.1;</span><br><span class="line">      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">      proxy_set_header X-Forwarded-Proto https;</span><br><span class="line">      proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/how-to-install-discourse-on-ubuntu-18-04">https://www.digitalocean.com/community/tutorials/how-to-install-discourse-on-ubuntu-18-04</a><br><a target="_blank" rel="noopener" href="https://meta.discoursecn.org/">https://meta.discoursecn.org/</a><br><a target="_blank" rel="noopener" href="https://meta.discourse.org/t/running-other-websites-on-the-same-machine-as-discourse/17247">https://meta.discourse.org/t/running-other-websites-on-the-same-machine-as-discourse/17247</a><br><a target="_blank" rel="noopener" href="https://meta.discourse.org/t/wanting-to-run-discourse-alongside-apache/125075">https://meta.discourse.org/t/wanting-to-run-discourse-alongside-apache/125075</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ubuntu/" rel="tag"># ubuntu</a>
+              <a href="/tags/ssh/" rel="tag"># ssh</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020-08-23-tencent-cloud-ubuntu-system-gets-root-permissions/" rel="prev" title="腾讯云ubuntu系统切换到root权限">
+                  <i class="fa fa-chevron-left"></i> 腾讯云ubuntu系统切换到root权限
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020-09-06-how-to-install-ganache-in-windows/" rel="next" title="Windows 上搭建本地私链测试环境-Ganache">
+                  Windows 上搭建本地私链测试环境-Ganache <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">美H向W</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
