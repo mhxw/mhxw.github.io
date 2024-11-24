@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="概要智能合约编译成java文件有几种方式，本文讲解最原始的那种。 编译环境Windows 系统 一、安装solc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="智能合约编译成Java文件">
+<meta property="og:url" content="https://mhxw.github.io/2021-04-10-java-generate-solidity/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="概要智能合约编译成java文件有几种方式，本文讲解最原始的那种。 编译环境Windows 系统 一、安装solc">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-10T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T02:54:08.754Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="solidity">
+<meta property="article:tag" content="web3j">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2021-04-10-java-generate-solidity/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2021-04-10-java-generate-solidity/","path":"2021-04-10-java-generate-solidity/","title":"智能合约编译成Java文件"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>智能合约编译成Java文件 | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">编译环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85solc"><span class="nav-number">3.</span> <span class="nav-text">一、安装solc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8B%E8%BD%BDweb3j%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7%E8%BD%AC"><span class="nav-number">4.</span> <span class="nav-text">二、下载web3j命令行工具转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8web3j%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7%E8%BD%AC%E4%B8%BAjava%E6%96%87%E4%BB%B6"><span class="nav-number">5.</span> <span class="nav-text">三、使用web3j命令行工具转为java文件</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2021-04-10-java-generate-solidity/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="智能合约编译成Java文件 | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          智能合约编译成Java文件
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-04-10 00:00:00" itemprop="dateCreated datePublished" datetime="2021-04-10T00:00:00Z">2021-04-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/" itemprop="url" rel="index"><span itemprop="name">智能合约</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><p>智能合约编译成java文件有几种方式，本文讲解最原始的那种。</p>
+<h2 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h2><p>Windows 系统</p>
+<h2 id="一、安装solc"><a href="#一、安装solc" class="headerlink" title="一、安装solc"></a>一、安装solc</h2><span id="more"></span>
+<p>Solidity编写的以太坊智能合约可通过命令行编译工具solc来进行编译，成为以太坊虚拟机中的代码。solc编译后最终部署到链上形成我们所见到的各种智能合约。</p>
+<blockquote>
+<p>注意</p>
+<p>solc的版本与以太坊智能合约版本一致，如果您编译的是.0.5.16，只下载那个版本即可</p>
+</blockquote>
+<p>示例代码</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> <span class="token parameter variable">-g</span> solc@0.5.16<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>以下网址可查到solc的所有版本号</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://www.npmjs.com/package/solc<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>通过以下命令检查是否安装成功，正确会输出其版本号</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">solcjs <span class="token parameter variable">-V</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="二、下载web3j命令行工具转"><a href="#二、下载web3j命令行工具转" class="headerlink" title="二、下载web3j命令行工具转"></a>二、下载web3j命令行工具转</h2><p>打开以下网址，选择tag中的最新分支，点击.zip文件下载</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://github.com/web3j/web3j/releases<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="三、使用web3j命令行工具转为java文件"><a href="#三、使用web3j命令行工具转为java文件" class="headerlink" title="三、使用web3j命令行工具转为java文件"></a>三、使用web3j命令行工具转为java文件</h2><ul>
+<li>–solidityTypes：后面添加第一步生成的<code>.bin文件</code>和<code>abi</code>文件</li>
+<li>-o：java文件保存的位置</li>
+<li>-p：包名</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">web3j solidity generate <span class="token parameter variable">--solidityTypes</span> D:<span class="token punctuation">\</span>Sol<span class="token punctuation">\</span>Sol<span class="token punctuation">\</span>mhxw.bin D:<span class="token punctuation">\</span>Sol<span class="token punctuation">\</span>Sol<span class="token punctuation">\</span>mhxw.abi <span class="token parameter variable">-o</span> D:<span class="token punctuation">\</span>Sol<span class="token punctuation">\</span>java <span class="token parameter variable">-p</span> com.mhxw.service.contract<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/solidity/" rel="tag"># solidity</a>
+              <a href="/tags/web3j/" rel="tag"># web3j</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-03-06-install-bitwarden-on-ubuntu-18-04/" rel="prev" title="在Ubuntu18.04 上采用Docker 安装bitwardenrs和实现自动备份数据库">
+                  <i class="fa fa-angle-left"></i> 在Ubuntu18.04 上采用Docker 安装bitwardenrs和实现自动备份数据库
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-04-25-install-prometheus-on-linux/" rel="next" title="Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控">
+                  Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、介绍本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。  Prometheus+Grafana监控部署 Prometheus监控平台AlertManager配置告警 Pushgateway 的安装和使用  Prometheus是一款基于时序数据库的开源监控告警系统。 主要特性（功能）#  多维数据模型（时序由 metric 名字和 k&#x2F;v 的labels构成）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Docker安装Prometheus+Grafana+AlertManager">
+<meta property="og:url" content="https://mhxw.github.io/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="一、介绍本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。  Prometheus+Grafana监控部署 Prometheus监控平台AlertManager配置告警 Pushgateway 的安装和使用  Prometheus是一款基于时序数据库的开源监控告警系统。 主要特性（功能）#  多维数据模型（时序由 metric 名字和 k&#x2F;v 的labels构成）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-06T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T02:54:08.755Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="grafana">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="alertmanager">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/","path":"2021-06-06-install-prometheus-grafana-alertmanager-by-docker/","title":"使用Docker安装Prometheus+Grafana+AlertManager"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用Docker安装Prometheus+Grafana+AlertManager | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85-Prometheus"><span class="nav-number">2.</span> <span class="nav-text">二、安装 Prometheus</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-node-exporter"><span class="nav-number">3.</span> <span class="nav-text">三、安装 node-exporter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AE%89%E8%A3%85-Grafana"><span class="nav-number">4.</span> <span class="nav-text">四、安装 Grafana</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%89%E8%A3%85AlertManager"><span class="nav-number">5.</span> <span class="nav-text">五、安装AlertManager</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-number">8.</span> <span class="nav-text">常见错误处理</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用Docker安装Prometheus+Grafana+AlertManager | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Docker安装Prometheus+Grafana+AlertManager
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2021-06-06T00:00:00Z">2021-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/" itemprop="url" rel="index"><span itemprop="name">运维监控</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。</p>
+<ul>
+<li><a href="/2021/04/25/2021-4-25-install-prometheus-on-linux/">Prometheus+Grafana监控部署</a></li>
+<li><a href="/2021/05/02/2021-5-2-prometheus-alertmanager/">Prometheus监控平台AlertManager配置告警</a></li>
+<li><a href="/2021/06/06/2021-6-6-pushgateway/">Pushgateway 的安装和使用</a></li>
+</ul>
+<p>Prometheus是一款基于时序数据库的开源监控告警系统。</p>
+<p>主要特性（功能）#</p>
+<ul>
+<li>多维数据模型（时序由 metric 名字和 k&#x2F;v 的labels构成）</li>
+<li>灵活的查询语言（PromQL）</li>
+<li>无依赖的分布式存储；单节点服务器都是自治的</li>
+<li>采用 http 协议，使用pull模式拉取数据，简单易懂</li>
+<li>监控目标，可以采用服务发现和静态配置方式</li>
+<li>支持多种统计数据模型和界面展示。可以和Grafana结合展示。<span id="more"></span></li>
+</ul>
+<h2 id="二、安装-Prometheus"><a href="#二、安装-Prometheus" class="headerlink" title="二、安装 Prometheus"></a>二、安装 Prometheus</h2><p>1.首先创建一个配置文件 <code>prometheus.yml</code></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus.yml">官方模板</a></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 创建数据盘目录</span>
+<span class="token function">mkdir</span> <span class="token parameter variable">-p</span> /mhxw/monitor/prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>把编辑好的配置文件 <code>prometheus.yml</code> 放置到 <code>prometheus</code> 目录下</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span><span class="token operator">=</span>prometheus <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">20602</span>:9090 <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml <span class="token punctuation">\</span>
+prom/prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>配置说明</p>
+<ul>
+<li>–config.file prometheus配置文件路径</li>
+<li>–storage.tsdb.retention.time 保存时间</li>
+<li>–storage.tsdb.path 数据存储路径</li>
+<li>-v：冒号”:”前面的目录是宿主机目录，后面的目录是容器内目录。</li>
+<li>-p：冒号”:”前面的目录是宿主机端口，后面的目录是容器内端口。</li>
+</ul>
+<blockquote>
+<p>注意</p>
+<p>有没有发现默认使用 static_configs 静态配置方式，虽然可以正确配置，但是每次配置都需要重启 Prometheus 服务，当我们需要分批次添加很多 Node 时，频繁重启服务就会造成监控的多次中断，这太不友好了。当然 Prometheus 也提供了多种服务发现方式</p>
+</blockquote>
+<ul>
+<li>自动发现</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">- labels:
+    name: two
+  targets: <span class="token punctuation">[</span><span class="token string">"148.153.72.214:20406"</span>,<span class="token string">"148.153.72.214:20407"</span>,<span class="token string">"148.153.72.214:20408"</span>,<span class="token string">"148.153.72.214:20409"</span>,<span class="token string">"148.153.72.214:20410"</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="三、安装-node-exporter"><a href="#三、安装-node-exporter" class="headerlink" title="三、安装 node-exporter"></a>三、安装 node-exporter</h2><p>编辑 <code>prometheus.yml</code> 将node_exporter加上。</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">- job_name: <span class="token string">'node_exporter'</span>
+  static_configs:
+  - targets: <span class="token punctuation">[</span><span class="token string">"localhost:14202"</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>安装并启动</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">--net</span><span class="token operator">=</span><span class="token string">"host"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">--pid</span><span class="token operator">=</span><span class="token string">"host"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">--name</span><span class="token operator">=</span>node-exporter <span class="token punctuation">\</span>
+  <span class="token parameter variable">-v</span> <span class="token string">"/:/host:ro,rslave"</span> <span class="token punctuation">\</span>
+  prom/node-exporter <span class="token punctuation">\</span>
+  <span class="token parameter variable">--path.rootfs</span> /host<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>重启docker prometheus，让刚才修改的配置生效</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> restart prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="四、安装-Grafana"><a href="#四、安装-Grafana" class="headerlink" title="四、安装 Grafana"></a>四、安装 Grafana</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">14206</span>:3000 <span class="token parameter variable">--name</span><span class="token operator">=</span>grafana grafana/grafana<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>在浏览器输入 ip:端口 显示 grafana 则表示安装成功</p>
+<h2 id="五、安装AlertManager"><a href="#五、安装AlertManager" class="headerlink" title="五、安装AlertManager"></a>五、安装AlertManager</h2><blockquote>
+<p>注意</p>
+<p>AlertManager 默认配置文件为<code>alertmanager.yml</code>,AlertManager容器内的配置文件为：<code>/etc/alertmanager/alertmanager.yml</code></p>
+</blockquote>
+<ul>
+<li>启动 AlertManager</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">14207</span>:9093 <span class="token parameter variable">--name</span> alertmanager <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/:/etc/alertmanager/config/ <span class="token punctuation">\</span>
+prom/alertmanager<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>AlertManager 参考文件</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">global:
+  resolve_timeout: 5m
+  smtp_smarthost: <span class="token string">"smtp.qq.com:587"</span>
+  smtp_from: <span class="token string">"xxxx@qq.com"</span>
+  smtp_auth_username: <span class="token string">"xxxx@qq.com"</span>
+  <span class="token comment">#邮箱专用授权码</span>
+  smtp_auth_password: <span class="token string">"xxxx"</span>
+  <span class="token comment">#关闭TLS授权</span>
+  smtp_require_tls: <span class="token boolean">true</span>
+
+<span class="token comment">#自定义告警模板</span>
+templates:
+  - <span class="token string">"/etc/alertmanager/config/alert-temp/*.tmpl"</span>
+
+route:
+  group_by: <span class="token punctuation">[</span><span class="token string">'swarm_status'</span>,<span class="token string">'node_status'</span><span class="token punctuation">]</span>
+  group_wait: 30s
+  group_interval: 20m
+  repeat_interval: 1h
+  receiver: <span class="token string">'swarm_receiver'</span>
+receivers:
+- name: <span class="token string">'swarm_receiver'</span>
+  email_configs:
+    - to: <span class="token string">'xxxx@qq.com'</span>
+      send_resolved: <span class="token boolean">true</span>
+inhibit_rules:
+  - source_match:
+      severity: <span class="token string">'critical'</span>
+    target_match:
+      severity: <span class="token string">'warning'</span>
+    equal: <span class="token punctuation">[</span><span class="token string">'alertname'</span>, <span class="token string">'dev'</span>, <span class="token string">'instance'</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>重新配置 Prometheus</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">'172.31.10.69:14207'</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>配置说明：</li>
+</ul>
+<p>告诉prometheus，放生告警时，将告警信息发送到Alertmanager，Alertmanager地址为 <a target="_blank" rel="noopener" href="http://172.31.10.69:14207/">http://172.31.10.69:14207</a></p>
+<ul>
+<li>删除Prometheus之前容器，重新运行</li>
+</ul>
+<ol>
+<li><p>先用<code>docker ps</code>查看prometheus容器ID</p>
+</li>
+<li><p>停掉容器 <code>docker stop ***</code></p>
+</li>
+</ol>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> stop prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ol start="3">
+<li>删掉这个容器 <code>docker rm ***</code></li>
+</ol>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">rm</span> prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>重新启动容器</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span><span class="token operator">=</span>prometheus <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">14204</span>:9090 <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/zhangZhang.yml:/etc/prometheus/zhangZhang.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/mhxw_node_exporter.yml:/etc/prometheus/mhxw_node_exporter.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/laoCui.yml:/etc/prometheus/laoCui.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/rules/alert-rules-node.yml:/etc/prometheus/rules/alert-rules-node.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/rules/alert-rules-mhxw.yml:/etc/prometheus/rules/alert-rules-mhxw.yml <span class="token punctuation">\</span>
+prom/prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span><span class="token operator">=</span>prometheus <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">14204</span>:9090 <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/:/etc/prometheus/config/ <span class="token punctuation">\</span>
+prom/prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://cloud.tencent.com/developer/article/1486483<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li><p>bee_export</p>
+</li>
+<li><p>prometheus</p>
+</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span><span class="token operator">=</span>prometheus <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">20603</span>:9090 <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/:/etc/prometheus/config/ <span class="token punctuation">\</span>
+prom/prometheus
+
+<span class="token function">docker</span> logs <span class="token parameter variable">-f</span> prometheus
+
+<span class="token function">docker</span> stop prometheus
+
+<span class="token function">docker</span> <span class="token function">rm</span> prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>alertmanager</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">20604</span>:9093 <span class="token parameter variable">--name</span> alertmanager <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml <span class="token punctuation">\</span>
+<span class="token parameter variable">-v</span> /mhxw/prometheus/:/etc/alertmanager/config/ <span class="token punctuation">\</span>
+prom/alertmanager
+
+<span class="token function">docker</span> stop alertmanager
+
+<span class="token function">docker</span> <span class="token function">rm</span> alertmanager<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>bee_export</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">docker</span> run <span class="token parameter variable">--restart</span> unless-stopped <span class="token punctuation">\</span>
+  <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">20601</span>:20601 <span class="token punctuation">\</span>
+	<span class="token parameter variable">--name</span><span class="token operator">=</span>bee_export <span class="token punctuation">\</span>
+	--log-opt max-size<span class="token operator">=</span>20m <span class="token punctuation">\</span>
+	--log-opt max-file<span class="token operator">=</span><span class="token number">3</span> <span class="token punctuation">\</span>
+	<span class="token parameter variable">-v</span> /mhxw/monitor/bee_export/info.json:/usr/local/bin/info.json <span class="token punctuation">\</span>
+	sgswarm/bee_export:0.0.6 <span class="token parameter variable">-path</span> /usr/local/bin/info.json
+
+<span class="token function">docker</span> stop bee_export
+
+<span class="token function">docker</span> <span class="token function">rm</span> bee_export<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="常见错误处理"><a href="#常见错误处理" class="headerlink" title="常见错误处理"></a>常见错误处理</h2><ul>
+<li>问题一</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token assign-left variable">level</span><span class="token operator">=</span>error <span class="token assign-left variable">ts</span><span class="token operator">=</span><span class="token number">2021</span>-06-25T02:55:06.818Z <span class="token assign-left variable">caller</span><span class="token operator">=</span>query_logger.go:87 <span class="token assign-left variable">component</span><span class="token operator">=</span>activeQueryTracker <span class="token assign-left variable">msg</span><span class="token operator">=</span><span class="token string">"Error opening query log file"</span> <span class="token assign-left variable">file</span><span class="token operator">=</span>/prometheus/queries.active <span class="token assign-left variable">err</span><span class="token operator">=</span><span class="token string">"open /prometheus/queries.active: permission denied"</span>
+panic: Unable to create mmap-ed active query log
+
+goroutine <span class="token number">1</span> <span class="token punctuation">[</span>running<span class="token punctuation">]</span>:
+github.com/prometheus/prometheus/promql.NewActiveQueryTracker<span class="token punctuation">(</span>0x7ffde0177f57, 0xb, 0x14, 0x375eea0, 0xc000092c80, 0x375eea0<span class="token punctuation">)</span>
+        /app/promql/query_logger.go:117 +0x4e8
+main.main<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        /app/cmd/prometheus/main.go:462 +0x5990<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>启动命令造成</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token parameter variable">-v</span> /mhxw/monitor/prometheus/data:/prometheus <span class="token punctuation">\</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>问题二</li>
+</ul>
+<p>docker启动时候，prometheus命令放在镜像名后面</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/grafana/" rel="tag"># grafana</a>
+              <a href="/tags/prometheus/" rel="tag"># prometheus</a>
+              <a href="/tags/alertmanager/" rel="tag"># alertmanager</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-06-06-pushgateway/" rel="prev" title="Pushgateway 的安装和使用">
+                  <i class="fa fa-angle-left"></i> Pushgateway 的安装和使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-06-06-docker/" rel="next" title="Linux运维和Docker 相关使用">
+                  Linux运维和Docker 相关使用 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在Go1.4版本中引入了HTTP基本身份认证模块 。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在Golang中正确使用基本身份认证（HTTP Basic Authentication）">
+<meta property="og:url" content="https://mhxw.github.io/2021-07-15-basic-authentication-in-go/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="在Go1.4版本中引入了HTTP基本身份认证模块 。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mhxw.github.io/images/baig-1.jpg">
+<meta property="article:published_time" content="2021-07-15T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T02:54:08.755Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="golang">
+<meta property="article:tag" content="basic-auth">
+<meta property="article:tag" content="技术教程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mhxw.github.io/images/baig-1.jpg">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2021-07-15-basic-authentication-in-go/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2021-07-15-basic-authentication-in-go/","path":"2021-07-15-basic-authentication-in-go/","title":"如何在Golang中正确使用基本身份认证（HTTP Basic Authentication）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何在Golang中正确使用基本身份认证（HTTP Basic Authentication） | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%9F%BA%E6%9C%AC%E8%AE%A4%E8%AF%81%EF%BC%9F%E6%88%91%E5%BA%94%E8%AF%A5%E5%9C%A8%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8%E5%AE%83%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是基本认证？我应该在什么时候使用它？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4-Web-%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.</span> <span class="nav-text">保护 Web 应用程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">案例代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E5%8F%97%E4%BF%9D%E6%8A%A4%E7%9A%84HTTP%E8%B5%84%E6%BA%90%E5%8F%91%E5%87%BA%E8%AF%B7%E6%B1%82"><span class="nav-number">4.</span> <span class="nav-text">向受保护的HTTP资源发出请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2021-07-15-basic-authentication-in-go/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何在Golang中正确使用基本身份认证（HTTP Basic Authentication） | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何在Golang中正确使用基本身份认证（HTTP Basic Authentication）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-07-15 00:00:00" itemprop="dateCreated datePublished" datetime="2021-07-15T00:00:00Z">2021-07-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在Go1.4版本中引入了<a target="_blank" rel="noopener" href="https://pkg.go.dev/net/http#Request.BasicAuth">HTTP基本身份认证模块</a> 。</p>
+<span id="more"></span>
+
+<h2 id="什么是基本认证？我应该在什么时候使用它？"><a href="#什么是基本认证？我应该在什么时候使用它？" class="headerlink" title="什么是基本认证？我应该在什么时候使用它？"></a>什么是基本认证？我应该在什么时候使用它？</h2><p>作为开发人员，您可能访问受保护的网址时，Web 浏览器显示以下弹框。</p>
+<p><img src="/images/baig-1.jpg" alt="弹框截图"></p>
+<p>当您在此提示输入用户名和密码时，Web 浏览器将向服务器发送一个包含<code>Authorization</code>标头的 HTTP 请求，类似于：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Authorization: Basic <span class="token assign-left variable">YWxpY2U6cGE1NXdvcmQ</span><span class="token operator">=</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Authorization: Basic base64encode<span class="token punctuation">(</span>username+<span class="token string">":"</span>+password<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>HTTP协议中的 <code>Authorization</code> 请求消息头含有服务器用于验证用户代理身份的凭证。格式是<code>Basic</code>字符串+空格+用户名:密码的Base64编码。在上述示例中，<code>YWxpY2U6cGE1NXdvcmQ=</code>&#x3D; 是用户名:密码的base64编码。</p>
+<p>当服务器收到这个请求时，它会从<code>Authorization</code>中解析用户名和密码并检查它们是否有效。如果凭据无效，服务器返回<code>401 Unauthorized</code>响应，浏览器可以再次显示弹框。</p>
+<p>基本身份验证可用于许多不同的场景，但它通常适合于对安全性要求不高的系统或设备中。</p>
+<p>为了提高其安全性，您可以：</p>
+<ul>
+<li><p>只在 HTTPS 连接上使用它：如果您不使用 HTTPS，<code>Authorization</code>请求消息头可能会被攻击者拦截和解码，然后他们可以使用用户名和密码来访问您受保护的资源。</p>
+</li>
+<li><p>使用攻击者难以猜测或暴力破解的强密码。</p>
+</li>
+</ul>
+<h2 id="保护-Web-应用程序"><a href="#保护-Web-应用程序" class="headerlink" title="保护 Web 应用程序"></a>保护 Web 应用程序</h2><p>保护程序最简单的方法的是创建一些中间件。我们需要做到以下几点：</p>
+<ul>
+<li><p>从<code>Authorization</code>请求消息头中解析用户名和密码（如果存在）。建议直接使用Go 1.4 中引入的方法：<code>r.BasicAuth()</code>。</p>
+</li>
+<li><p>将提供的用户名和密码与您期望的值进行比较。为了避免定时攻击的风险，你应该使用 Go 的<code>subtle.ConstantTimeCompare()</code>函数进行比较。</p>
+</li>
+</ul>
+<blockquote>
+<p>注意：</p>
+<p>在Go中（和大多数语言一样），普通的&#x3D;&#x3D;比较运算符一旦发现两个字符串之间有差异，就会立即返回。因此，如果第一个字符是不同的，它将在只看一个字符后返回。从理论上讲，这为<a href="">定时攻击</a>提供了机会，攻击者可以向你的应用程序发出大量请求，并查看平均响应时间的差异。他们收到401响应所需的时间可以有效地告诉他们有多少字符是正确的，如果有足够的请求，他们可以建立一个完整的用户名和密码的画像。像网络抖动这样的事情使得这种特定的攻击很难实现，但远程定时攻击已经成为现实，而且在未来可能变得更加可行。考虑到这个因素我们可以通过使用subtle.ConstantTimeCompare()很容易地防范这种风险，这样做是有意义的。</p>
+</blockquote>
+<p>同样要注意的是，使用<code>subtle.ConstantTimeCompare()</code>可能会 <a target="_blank" rel="noopener" href="https://github.com/golang/go/issues/18936">泄露有关用户名和密码长度的信息</a> 。为了防范这种情况，我们应该在它们比较之前使用散列函数加密（比如：SHA-256）用户名和密码。使用加密后的用户名和密码镜像比较来防止<code>subtle.ConstantTimeCompare()</code> 提前返回。</p>
+<ul>
+<li>如果用户名和密码不正确，或者请求不包含有效的<code>Authorization</code>消息头，那么中间件应该发送<code>401 Unauthorized</code>响应并设置 <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc7235#section-4.1">WWW-Authenticate</a> 消息头以通知客户端应该使用基本身份验证来获得访问权限。否则，中间件应该允许请求进行下一步。</li>
+</ul>
+<p>综上所述，实现中间件的案例如下所示：</p>
+<pre class="line-numbers language-golang" data-language="golang"><code class="language-golang">func basicAuth(next http.HandlerFunc) http.HandlerFunc &#123;
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) &#123;
+        &#x2F;&#x2F; Extract the username and password from the request 
+        &#x2F;&#x2F; Authorization header. If no Authentication header is present 
+        &#x2F;&#x2F; or the header value is invalid, then the &#39;ok&#39; return value 
+        &#x2F;&#x2F; will be false.
+		username, password, ok :&#x3D; r.BasicAuth()
+		if ok &#123;
+            &#x2F;&#x2F; Calculate SHA-256 hashes for the provided and expected
+            &#x2F;&#x2F; usernames and passwords.
+			usernameHash :&#x3D; sha256.Sum256([]byte(username))
+			passwordHash :&#x3D; sha256.Sum256([]byte(password))
+			expectedUsernameHash :&#x3D; sha256.Sum256([]byte(&quot;your expected username&quot;))
+			expectedPasswordHash :&#x3D; sha256.Sum256([]byte(&quot;your expected password&quot;))
+
+            &#x2F;&#x2F; 使用 subtle.ConstantTimeCompare() 进行校验
+            &#x2F;&#x2F; the provided username and password hashes equal the  
+            &#x2F;&#x2F; expected username and password hashes. ConstantTimeCompare
+            &#x2F;&#x2F; 如果值相等，则返回1，否则返回0。
+            &#x2F;&#x2F; Importantly, we should to do the work to evaluate both the 
+            &#x2F;&#x2F; username and password before checking the return values to 
+            &#x2F;&#x2F; 避免泄露信息。
+			usernameMatch :&#x3D; (subtle.ConstantTimeCompare(usernameHash[:], expectedUsernameHash[:]) &#x3D;&#x3D; 1)
+			passwordMatch :&#x3D; (subtle.ConstantTimeCompare(passwordHash[:], expectedPasswordHash[:]) &#x3D;&#x3D; 1)
+
+            &#x2F;&#x2F; If the username and password are correct, then call
+            &#x2F;&#x2F; the next handler in the chain. Make sure to return 
+            &#x2F;&#x2F; afterwards, so that none of the code below is run.
+			if usernameMatch &amp;&amp; passwordMatch &#123;
+				next.ServeHTTP(w, r)
+				return
+			&#125;
+		&#125;
+
+        &#x2F;&#x2F; If the Authentication header is not present, is invalid, or the
+        &#x2F;&#x2F; username or password is wrong, then set a WWW-Authenticate 
+        &#x2F;&#x2F; header to inform the client that we expect them to use basic
+        &#x2F;&#x2F; authentication and send a 401 Unauthorized response.
+		w.Header().Set(&quot;WWW-Authenticate&quot;, &#96;Basic realm&#x3D;&quot;restricted&quot;, charset&#x3D;&quot;UTF-8&quot;&#96;)
+		http.Error(w, &quot;Unauthorized&quot;, http.StatusUnauthorized)
+	&#125;)
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="案例代码"><a href="#案例代码" class="headerlink" title="案例代码"></a>案例代码</h2><p>至此，让我们编写一个小型但功能齐全的项目测试一下。</p>
+<p>在您的计算机上创建一个新目录，添加一个<code>main.go</code>文件，初始化一个<code>mod</code>，并使用 <a target="_blank" rel="noopener" href="https://github.com/FiloSottile/mkcert">mkcert</a> 工具创建一对本地信任的 TLS 证书。就像这样：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">mkdir</span> basic-auth-example
+$ <span class="token builtin class-name">cd</span> basic-auth-example
+$ <span class="token function">touch</span> main.go
+$ go mod init example.com/basic-auth-example
+go: creating new go.mod: module example.com/basic-auth-example
+$ mkcert localhost
+Created a new certificate valid <span class="token keyword">for</span> the following names 📜
+     - <span class="token string">"localhost"</span>
+    
+    The certificate is at <span class="token string">"./localhost.pem"</span> and the key at <span class="token string">"./localhost-key.pem"</span> ✅
+    
+    It will expire on <span class="token number">21</span> September <span class="token number">2023</span> 🗓
+$ <span class="token function">ls</span>
+go.mod  localhost-key.pem  localhost.pem  main.go<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>把以下代码复制到<code>mian.go</code>中</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">package main
+
+<span class="token function">import</span> <span class="token punctuation">(</span>
+	<span class="token string">"crypto/sha256"</span>
+	<span class="token string">"crypto/subtle"</span>
+	<span class="token string">"fmt"</span>
+	<span class="token string">"log"</span>
+	<span class="token string">"net/http"</span>
+	<span class="token string">"os"</span>
+	<span class="token string">"time"</span>
+<span class="token punctuation">)</span>
+
+<span class="token builtin class-name">type</span> application struct <span class="token punctuation">&#123;</span>
+	auth struct <span class="token punctuation">&#123;</span>
+		username string
+		password string
+	<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+func <span class="token function-name function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	app :<span class="token operator">=</span> new<span class="token punctuation">(</span>application<span class="token punctuation">)</span>
+
+	app.auth.username <span class="token operator">=</span> <span class="token string">"mhxw"</span>
+	app.auth.password <span class="token operator">=</span> <span class="token string">"mhxw_password"</span>
+
+	<span class="token keyword">if</span> app.auth.username <span class="token operator">==</span> <span class="token string">""</span> <span class="token punctuation">&#123;</span>
+		log.Fatal<span class="token punctuation">(</span><span class="token string">"basic auth username must be provided"</span><span class="token punctuation">)</span>
+	<span class="token punctuation">&#125;</span>
+
+	<span class="token keyword">if</span> app.auth.password <span class="token operator">==</span> <span class="token string">""</span> <span class="token punctuation">&#123;</span>
+		log.Fatal<span class="token punctuation">(</span><span class="token string">"basic auth password must be provided"</span><span class="token punctuation">)</span>
+	<span class="token punctuation">&#125;</span>
+
+	mux :<span class="token operator">=</span> http.NewServeMux<span class="token punctuation">(</span><span class="token punctuation">)</span>
+	mux.HandleFunc<span class="token punctuation">(</span><span class="token string">"/unprotected"</span>, app.unprotectedHandler<span class="token punctuation">)</span>
+	mux.HandleFunc<span class="token punctuation">(</span><span class="token string">"/protected"</span>, app.basicAuth<span class="token punctuation">(</span>app.protectedHandler<span class="token punctuation">))</span>
+
+	srv :<span class="token operator">=</span> <span class="token operator">&amp;</span>http.Server<span class="token punctuation">&#123;</span>
+		Addr:         <span class="token string">":4000"</span>,
+		Handler:      mux,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  <span class="token number">10</span> * time.Second,
+		WriteTimeout: <span class="token number">30</span> * time.Second,
+	<span class="token punctuation">&#125;</span>
+
+	log.Printf<span class="token punctuation">(</span><span class="token string">"starting server on %s"</span>, srv.Addr<span class="token punctuation">)</span>
+	err :<span class="token operator">=</span> srv.ListenAndServeTLS<span class="token punctuation">(</span><span class="token string">"./localhost.pem"</span>, <span class="token string">"./localhost-key.pem"</span><span class="token punctuation">)</span>
+	log.Fatal<span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+func <span class="token punctuation">(</span>app *application<span class="token punctuation">)</span> protectedHandler<span class="token punctuation">(</span>w http.ResponseWriter, r *http.Request<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	fmt.Fprintln<span class="token punctuation">(</span>w, <span class="token string">"This is the protected handler"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+func <span class="token punctuation">(</span>app *application<span class="token punctuation">)</span> unprotectedHandler<span class="token punctuation">(</span>w http.ResponseWriter, r *http.Request<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+	fmt.Fprintln<span class="token punctuation">(</span>w, <span class="token string">"This is the unprotected handler"</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+func <span class="token punctuation">(</span>app *application<span class="token punctuation">)</span> basicAuth<span class="token punctuation">(</span>next http.HandlerFunc<span class="token punctuation">)</span> http.HandlerFunc <span class="token punctuation">&#123;</span>
+	<span class="token builtin class-name">return</span> func<span class="token punctuation">(</span>w http.ResponseWriter, r *http.Request<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+		username, password, ok :<span class="token operator">=</span> r.BasicAuth<span class="token punctuation">(</span><span class="token punctuation">)</span>
+		<span class="token keyword">if</span> ok <span class="token punctuation">&#123;</span>
+			usernameHash :<span class="token operator">=</span> sha256.Sum256<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>byte<span class="token punctuation">(</span>username<span class="token punctuation">))</span>
+			passwordHash :<span class="token operator">=</span> sha256.Sum256<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>byte<span class="token punctuation">(</span>password<span class="token punctuation">))</span>
+			expectedUsernameHash :<span class="token operator">=</span> sha256.Sum256<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>byte<span class="token punctuation">(</span>app.auth.username<span class="token punctuation">))</span>
+			expectedPasswordHash :<span class="token operator">=</span> sha256.Sum256<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span>byte<span class="token punctuation">(</span>app.auth.password<span class="token punctuation">))</span>
+
+			usernameMatch :<span class="token operator">=</span> subtle.ConstantTimeCompare<span class="token punctuation">(</span>usernameHash<span class="token punctuation">[</span>:<span class="token punctuation">]</span>, expectedUsernameHash<span class="token punctuation">[</span>:<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span>
+			passwordMatch :<span class="token operator">=</span> subtle.ConstantTimeCompare<span class="token punctuation">(</span>passwordHash<span class="token punctuation">[</span>:<span class="token punctuation">]</span>, expectedPasswordHash<span class="token punctuation">[</span>:<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">1</span>
+
+			<span class="token keyword">if</span> usernameMatch <span class="token operator">&amp;&amp;</span> passwordMatch <span class="token punctuation">&#123;</span>
+				next.ServeHTTP<span class="token punctuation">(</span>w, r<span class="token punctuation">)</span>
+				<span class="token builtin class-name">return</span>
+			<span class="token punctuation">&#125;</span>
+		<span class="token punctuation">&#125;</span>
+
+		w.Header<span class="token punctuation">(</span><span class="token punctuation">)</span>.Set<span class="token punctuation">(</span><span class="token string">"WWW-Authenticate"</span>, <span class="token variable"><span class="token variable">`</span>Basic <span class="token assign-left variable">realm</span><span class="token operator">=</span><span class="token string">"restricted"</span>, <span class="token assign-left variable">charset</span><span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token variable">`</span></span><span class="token punctuation">)</span>
+		http.Error<span class="token punctuation">(</span>w, <span class="token string">"Unauthorized"</span>, http.StatusUnauthorized<span class="token punctuation">)</span>
+	<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>运行以上案例，您可以在浏览器访问网址：<code>https://localhost:4000/protected</code> ，您可以看到浏览器弹出的基本身份认证提示。</p>
+<p>或者，您可以发送一些<code>curl</code>请求来验证<code>基本身份认证</code>是否正常工作</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">curl</span> <span class="token parameter variable">-i</span> https://localhost:4000/unprotected
+HTTP/2 <span class="token number">200</span> 
+content-type: text/plain<span class="token punctuation">;</span> <span class="token assign-left variable">charset</span><span class="token operator">=</span>utf-8
+content-length: <span class="token number">32</span>
+date: Sun, <span class="token number">20</span> Jun <span class="token number">2021</span> <span class="token number">14</span>:09:56 GMT
+
+This is the unprotected handler
+
+$ <span class="token function">curl</span> <span class="token parameter variable">-i</span> https://localhost:4000/protected
+HTTP/2 <span class="token number">401</span> 
+content-type: text/plain<span class="token punctuation">;</span> <span class="token assign-left variable">charset</span><span class="token operator">=</span>utf-8
+www-authenticate: Basic <span class="token assign-left variable">realm</span><span class="token operator">=</span><span class="token string">"restricted"</span>, <span class="token assign-left variable">charset</span><span class="token operator">=</span><span class="token string">"UTF-8"</span>
+x-content-type-options: nosniff
+content-length: <span class="token number">13</span>
+date: Sun, <span class="token number">20</span> Jun <span class="token number">2021</span> <span class="token number">14</span>:09:59 GMT
+
+Unauthorized
+
+$ <span class="token function">curl</span> <span class="token parameter variable">-i</span> <span class="token parameter variable">-u</span> alice:p8fnxeqj5a7zbrqp https://localhost:4000/protected
+HTTP/2 <span class="token number">200</span> 
+content-type: text/plain<span class="token punctuation">;</span> <span class="token assign-left variable">charset</span><span class="token operator">=</span>utf-8
+content-length: <span class="token number">30</span>
+date: Sun, <span class="token number">20</span> Jun <span class="token number">2021</span> <span class="token number">14</span>:10:14 GMT
+
+This is the protected handler
+
+$ <span class="token function">curl</span> <span class="token parameter variable">-i</span> <span class="token parameter variable">-u</span> alice:wrongPa55word https://localhost:4000/protected
+HTTP/2 <span class="token number">401</span> 
+content-type: text/plain<span class="token punctuation">;</span> <span class="token assign-left variable">charset</span><span class="token operator">=</span>utf-8
+www-authenticate: Basic <span class="token assign-left variable">realm</span><span class="token operator">=</span><span class="token string">"restricted"</span>, <span class="token assign-left variable">charset</span><span class="token operator">=</span><span class="token string">"UTF-8"</span>
+x-content-type-options: nosniff
+content-length: <span class="token number">13</span>
+date: Sun, <span class="token number">20</span> Jun <span class="token number">2021</span> <span class="token number">14</span>:15:30 GMT
+
+Unauthorized<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="向受保护的HTTP资源发出请求"><a href="#向受保护的HTTP资源发出请求" class="headerlink" title="向受保护的HTTP资源发出请求"></a>向受保护的HTTP资源发出请求</h2><p>当您需要访问受保护的资源时，Go可以让您变得非常简单。您需要做的是在执行请求之前调用<a target="_blank" rel="noopener" href="https://pkg.go.dev/net/http#Request.SetBasicAuth">r.SetBasicAuth()</a> 方法。如以下案例</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">package main
+
+<span class="token function">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"io"</span>
+    <span class="token string">"log"</span>
+    <span class="token string">"net/http"</span>
+    <span class="token string">"time"</span>
+<span class="token punctuation">)</span>
+
+func <span class="token function-name function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    client :<span class="token operator">=</span> http.Client<span class="token punctuation">&#123;</span>Timeout: <span class="token number">5</span> * time.Second<span class="token punctuation">&#125;</span>
+
+    req, err :<span class="token operator">=</span> http.NewRequest<span class="token punctuation">(</span>http.MethodGet, <span class="token string">"https://localhost:4000/protected"</span>, http.NoBody<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> nil <span class="token punctuation">&#123;</span>
+        log.Fatal<span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    req.SetBasicAuth<span class="token punctuation">(</span><span class="token string">"alice"</span>, <span class="token string">"p8fnxeqj5a7zbrqp"</span><span class="token punctuation">)</span>
+
+    res, err :<span class="token operator">=</span> client.Do<span class="token punctuation">(</span>req<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> nil <span class="token punctuation">&#123;</span>
+        log.Fatal<span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    defer res.Body.Close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    resBody, err :<span class="token operator">=</span> io.ReadAll<span class="token punctuation">(</span>res.Body<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> err <span class="token operator">!=</span> nil <span class="token punctuation">&#123;</span>
+        log.Fatal<span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    fmt.Printf<span class="token punctuation">(</span><span class="token string">"Status: %d<span class="token entity" title="\n">\n</span>"</span>, res.StatusCode<span class="token punctuation">)</span>
+    fmt.Printf<span class="token punctuation">(</span><span class="token string">"Body: %s<span class="token entity" title="\n">\n</span>"</span>, string<span class="token punctuation">(</span>resBody<span class="token punctuation">))</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://mhxw.life
+https://www.alexedwards.net/blog/basic-authentication-in-go<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/golang/" rel="tag"># golang</a>
+              <a href="/tags/basic-auth/" rel="tag"># basic-auth</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/" rel="tag"># 技术教程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-07-04-coredns/" rel="prev" title="在Ubuntu上安装CoreDNS">
+                  <i class="fa fa-angle-left"></i> 在Ubuntu上安装CoreDNS
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-09-05-install-docker-and-docker-compose-on-docker/" rel="next" title="Ubuntu下安装docker和docker-compose">
+                  Ubuntu下安装docker和docker-compose <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

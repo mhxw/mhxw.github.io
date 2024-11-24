@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一. 前言接上一篇Prometheus+Grafana监控部署，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。 二、介绍AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。 三、安装部署">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prometheus监控平台AlertManager配置告警">
+<meta property="og:url" content="https://mhxw.github.io/2021-05-02-prometheus-alertmanager/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="一. 前言接上一篇Prometheus+Grafana监控部署，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。 二、介绍AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。 三、安装部署">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-02T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T02:54:08.754Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="alertmanager">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2021-05-02-prometheus-alertmanager/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2021-05-02-prometheus-alertmanager/","path":"2021-05-02-prometheus-alertmanager/","title":"Prometheus监控平台AlertManager配置告警"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Prometheus监控平台AlertManager配置告警 | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">一. 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">二、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2"><span class="nav-number">3.</span> <span class="nav-text">三、安装部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BD"><span class="nav-number">3.1.</span> <span class="nav-text">1、下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E8%A7%A3%E5%8E%8B"><span class="nav-number">3.2.</span> <span class="nav-text">2、解压</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E7%BC%96%E8%BE%91alertmanager%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.3.</span> <span class="nav-text">3、编辑alertmanager配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%A3%80%E6%9F%A5AlertManager%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-number">3.4.</span> <span class="nav-text">4、检查AlertManager配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E5%90%AF%E5%8A%A8AlertManager"><span class="nav-number">3.5.</span> <span class="nav-text">5、启动AlertManager</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%87%8D%E6%96%B0%E9%85%8D%E7%BD%AEPrometheus"><span class="nav-number">4.</span> <span class="nav-text">四、重新配置Prometheus</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E7%BC%96%E8%BE%91prometheus-yml"><span class="nav-number">4.1.</span> <span class="nav-text">1、编辑prometheus.yml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BA%E5%91%8A%E8%AD%A6%E7%9B%AE%E5%BD%95-%E6%B7%BB%E5%8A%A0%E6%8A%A5%E8%AD%A6%E8%A7%84%E5%88%99"><span class="nav-number">4.2.</span> <span class="nav-text">2、创建告警目录&amp;添加报警规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E9%87%8D%E5%90%AFPrometheus"><span class="nav-number">4.3.</span> <span class="nav-text">3、重启Prometheus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E6%9F%A5%E7%9C%8B%E9%82%AE%E4%BB%B6"><span class="nav-number">4.4.</span> <span class="nav-text">4、查看邮件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2021-05-02-prometheus-alertmanager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Prometheus监控平台AlertManager配置告警 | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Prometheus监控平台AlertManager配置告警
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-05-02 00:00:00" itemprop="dateCreated datePublished" datetime="2021-05-02T00:00:00Z">2021-05-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/" itemprop="url" rel="index"><span itemprop="name">运维监控</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一-前言"><a href="#一-前言" class="headerlink" title="一. 前言"></a>一. 前言</h2><p>接上一篇<a href="./2021-4-25-install-prometheus-on-linux.md">Prometheus+Grafana监控部署</a>，环境已经安装完成，本篇进行学习使用Alertmanager告警配置。</p>
+<h2 id="二、介绍"><a href="#二、介绍" class="headerlink" title="二、介绍"></a>二、介绍</h2><p>AlertManager是一个独立的告警模块，接收Prometheus等客户端发来的警报，之后通过分组、删除重复等处理，并将它们通过路由发送给正确的接收器。</p>
+<h2 id="三、安装部署"><a href="#三、安装部署" class="headerlink" title="三、安装部署"></a>三、安装部署</h2><span id="more"></span>
+<h3 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h3><p><a target="_blank" rel="noopener" href="https://prometheus.io/download/">https://prometheus.io/download/</a></p>
+<h3 id="2、解压"><a href="#2、解压" class="headerlink" title="2、解压"></a>2、解压</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token parameter variable">-p</span> /mhxw/prometheus/alertmanager
+<span class="token function">wget</span> https://github.com/prometheus/alertmanager/releases/download/v0.22.2/alertmanager-0.22.2.linux-amd64.tar.gz
+<span class="token function">tar</span> <span class="token parameter variable">-zxvf</span> alertmanager-0.22.2.linux-amd64.tar.gz <span class="token parameter variable">-C</span> /mhxw/prometheus/
+<span class="token function">mv</span> /mhxw/prometheus/alertmanager-0.22.2.linux-amd64/* /mhxw/prometheus/alertmanager
+<span class="token builtin class-name">cd</span> /mhxw/prometheus/alertmanager<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>查看版本</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/mhxw/prometheus/alertmanager/alertmanager <span class="token parameter variable">--version</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="3、编辑alertmanager配置文件"><a href="#3、编辑alertmanager配置文件" class="headerlink" title="3、编辑alertmanager配置文件"></a>3、编辑<code>alertmanager</code>配置文件</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">vim</span> /mhxw/prometheus/alertmanager/alertmanager.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>配置文件说明</p>
+<ul>
+<li>全局配置（global）：用于定义一些全局的公共参数，如全局的SMTP配置，Slack配置等内容；</li>
+<li>模板（templates）：用于定义告警通知时的模板，如HTML模板，邮件模板等；</li>
+<li>告警路由（route）：根据标签匹配，确定当前告警应该如何处理；</li>
+<li>接收人（receivers）：接收人是一个抽象的概念，它可以是一个邮箱也可以是微信，Slack或者Webhook等，接收人一般配合告警路由使用；</li>
+<li>抑制规则（inhibit_rules）：合理设置抑制规则可以减少垃圾告警的产生</li>
+</ul>
+<p>完整配置格式如下：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">global:
+  <span class="token punctuation">[</span> resolve_timeout: <span class="token operator">&lt;</span>duration<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> 5m <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_from: <span class="token operator">&lt;</span>tmpl_string<span class="token operator">></span> <span class="token punctuation">]</span> 
+  <span class="token punctuation">[</span> smtp_smarthost: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token punctuation">]</span> 
+  <span class="token punctuation">[</span> smtp_hello: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"localhost"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_auth_username: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_auth_password: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_auth_identity: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_auth_secret: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> smtp_require_tls: <span class="token operator">&lt;</span>bool<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token boolean">true</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> slack_api_url: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> victorops_api_key: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> victorops_api_url: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"https://alert.victorops.com/integrations/generic/20131114/alert/"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> pagerduty_url: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"https://events.pagerduty.com/v2/enqueue"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> opsgenie_api_key: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> opsgenie_api_url: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"https://api.opsgenie.com/"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> hipchat_api_url: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"https://api.hipchat.com/"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> hipchat_auth_token: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> wechat_api_url: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token operator">|</span> default <span class="token operator">=</span> <span class="token string">"https://qyapi.weixin.qq.com/cgi-bin/"</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> wechat_api_secret: <span class="token operator">&lt;</span>secret<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> wechat_api_corp_id: <span class="token operator">&lt;</span>string<span class="token operator">></span> <span class="token punctuation">]</span>
+  <span class="token punctuation">[</span> http_config: <span class="token operator">&lt;</span>http_config<span class="token operator">></span> <span class="token punctuation">]</span>
+
+templates:
+  <span class="token punctuation">[</span> - <span class="token operator">&lt;</span>filepath<span class="token operator">></span> <span class="token punctuation">..</span>. <span class="token punctuation">]</span>
+
+route: <span class="token operator">&lt;</span>route<span class="token operator">></span>
+
+receivers:
+  - <span class="token operator">&lt;</span>receiver<span class="token operator">></span> <span class="token punctuation">..</span>.
+
+inhibit_rules:
+  <span class="token punctuation">[</span> - <span class="token operator">&lt;</span>inhibit_rule<span class="token operator">></span> <span class="token punctuation">..</span>. <span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>文件内容如下：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">global:
+  resolve_timeout: 5m
+  smtp_smarthost: <span class="token string">"smtp.qq.com:587"</span>
+  smtp_from: <span class="token string">"****@foxmail.com"</span>
+  smtp_auth_username: <span class="token string">"****@foxmail.com"</span>
+  <span class="token comment">#邮箱专用授权码</span>
+  smtp_auth_password: <span class="token string">"****"</span>
+  <span class="token comment">#关闭TLS授权</span>
+  smtp_require_tls: <span class="token boolean">true</span>
+route:
+  group_by: <span class="token punctuation">[</span><span class="token string">'mhxw_status'</span>,<span class="token string">'node_status'</span><span class="token punctuation">]</span> <span class="token comment">#与prometheus配置文件alert_rules.yml中配置规则名对应</span>
+  group_wait: 30s <span class="token comment">#报警等待时间</span>
+  group_interval: 5m <span class="token comment">#报警间隔时间</span>
+  repeat_interval: 1h <span class="token comment">#重复报警间隔时间</span>
+  receiver: <span class="token string">'mhxw_receiver'</span> <span class="token comment">#告警处理方式</span>
+receivers:
+- name: <span class="token string">'mhxw_receiver'</span>
+  email_configs:
+    - to: <span class="token string">'mhxw@gmail.com'</span>
+      send_resolved: <span class="token boolean">true</span>
+inhibit_rules:
+  - source_match:
+      severity: <span class="token string">'critical'</span>
+    target_match:
+      severity: <span class="token string">'warning'</span>
+    equal: <span class="token punctuation">[</span><span class="token string">'alertname'</span>, <span class="token string">'dev'</span>, <span class="token string">'instance'</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>template目录下<code>node_status.tmpl</code></li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> define <span class="token string">"node.status.message"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- <span class="token keyword">if</span> gt <span class="token punctuation">(</span>len .Alerts.Firing<span class="token punctuation">)</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- range <span class="token variable">$index</span>, <span class="token variable">$alert</span> :<span class="token operator">=</span> .Alerts -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- <span class="token keyword">if</span> eq <span class="token variable">$index</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+**********MHXW告警通知**********
+MHXW告警类型: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.alertname <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+告警级别: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.level <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+MHXW告警主题: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Annotations.summary <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+MHXW告警详情: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Annotations.description <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+MHXW故障时间: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token punctuation">(</span>.StartsAt.Add 28800e9<span class="token punctuation">)</span>.Format <span class="token string">"2006-01-02 15:04:05"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token keyword">if</span> gt <span class="token punctuation">(</span>len <span class="token variable">$alert</span>.Labels.instance<span class="token punctuation">)</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>故障实例: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.instance <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- <span class="token keyword">if</span> gt <span class="token punctuation">(</span>len .Alerts.Resolved<span class="token punctuation">)</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- range <span class="token variable">$index</span>, <span class="token variable">$alert</span> :<span class="token operator">=</span> .Alerts -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- <span class="token keyword">if</span> eq <span class="token variable">$index</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+**********恢复通知**********
+告警类型: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.alertname <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+告警级别: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.level <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+告警主题: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Annotations.summary <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+告警详情: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Annotations.description <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+故障时间: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token punctuation">(</span>.StartsAt.Add 28800e9<span class="token punctuation">)</span>.Format <span class="token string">"2006-01-02 15:04:05"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+恢复时间: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token punctuation">(</span>.EndsAt.Add 28800e9<span class="token punctuation">)</span>.Format <span class="token string">"2006-01-02 15:04:05"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token keyword">if</span> gt <span class="token punctuation">(</span>len <span class="token variable">$alert</span>.Labels.instance<span class="token punctuation">)</span> <span class="token number">0</span> -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>故障实例: <span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> <span class="token variable">$alert</span>.Labels.instance <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end -<span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span>- end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>配置说明</p>
+<ul>
+<li><p>global: 全局配置，包括报警解决后的超时时间、SMTP 相关配置、各种渠道通知的 API 地址等等。</p>
+</li>
+<li><p>route: 用来设置报警的分发策略，它是一个树状结构，按照深度优先从左向右的顺序进行匹配。</p>
+</li>
+<li><p>receivers: 配置告警消息接受者信息，例如常用的 email、wechat、slack、webhook 等消息通知方式。</p>
+</li>
+<li><p>inhibit_rules: 抑制规则配置，当存在与另一组匹配的警报（源）时，抑制规则将禁用与一组匹配的警报（目标）。</p>
+</li>
+<li><p>smtp_smarthost: 这里为 QQ 邮箱 SMTP 服务地址，官方地址 smtp.qq.com 端口为 465 或 587，同时设置开启 POP3&#x2F;SMTP 服务。</p>
+</li>
+<li><p>smtp_auth_password: 这里为第三方登录 QQ 邮箱的授权码，非 QQ 账户登录密码，否则会报错，获取方式在 QQ 邮箱服务端设置开启 POP3&#x2F;SMTP 服务时会提示。</p>
+</li>
+</ul>
+<h3 id="4、检查AlertManager配置文件"><a href="#4、检查AlertManager配置文件" class="headerlink" title="4、检查AlertManager配置文件"></a>4、检查AlertManager配置文件</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/usr/local/Prometheus/alertmanager/amtool check-config /usr/local/Prometheus/alertmanager/alertmanager.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="5、启动AlertManager"><a href="#5、启动AlertManager" class="headerlink" title="5、启动AlertManager"></a>5、启动AlertManager</h3><p>一种是采用<code>tmux</code>方式</p>
+<ul>
+<li>新建会话</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">tmux new <span class="token parameter variable">-s</span> alertmanager<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>进入会话</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">tmux a <span class="token parameter variable">-t</span> alertmanager
+/mhxw/prometheus/alertmanager/alertmanager <span class="token parameter variable">--config.file</span><span class="token operator">=</span>/mhxw/prometheus/alertmanager/alertmanager.yml --web.listen-address<span class="token operator">=</span>:1998<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>一种是<code>systemd</code>采用开机启动方式</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">></span> /etc/systemd/system/alertmanager.service <span class="token operator">&lt;&lt;</span> <span class="token string">"EOF"
+[Unit]
+Description=alertmanager
+After=local-fs.target network-online.target network.target
+Wants=local-fs.target network-online.target network.target
+ 
+[Service]
+ExecStart=/mhxw/prometheus/alertmanager/alertmanager --config.file=/mhxw/prometheus/alertmanager/alertmanager.yml --web.listen-address=:1998
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+EOF</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl daemon-reload
+
+systemctl <span class="token builtin class-name">enable</span> alertmanager
+
+systemctl start alertmanager
+
+systemctl status alertmanager<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="四、重新配置Prometheus"><a href="#四、重新配置Prometheus" class="headerlink" title="四、重新配置Prometheus"></a>四、重新配置Prometheus</h2><h3 id="1、编辑prometheus-yml"><a href="#1、编辑prometheus-yml" class="headerlink" title="1、编辑prometheus.yml"></a>1、编辑prometheus.yml</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">vim</span> /mhxw/prometheus/prometheus/prometheus.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>告警配置连接</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># Alertmanager configuration</span>
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+       - alertmanager:1998<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>开启告警配置</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">rule_files:
+   - <span class="token string">"rules/*.yml"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<ul>
+<li>监控AlertManager</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">- job_name: <span class="token string">'alertmanager'</span>
+    static_configs:
+      - targets: <span class="token punctuation">[</span><span class="token string">'localhost:1998'</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>文件内容</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># my global config</span>
+global:
+  scrape_interval:     15s <span class="token comment"># Set the scrape interval to every 15 seconds. Default is every 1 minute.</span>
+  evaluation_interval: 15s <span class="token comment"># Evaluate rules every 15 seconds. The default is every 1 minute.</span>
+  <span class="token comment"># scrape_timeout is set to the global default (10s).</span>
+
+<span class="token comment"># Alertmanager configuration</span>
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">"localhost:1998"</span><span class="token punctuation">]</span>
+
+<span class="token comment"># Load rules once and periodically evaluate them according to the global 'evaluation_interval'.</span>
+rule_files:
+   - <span class="token string">"rules/*.yml"</span>
+  <span class="token comment"># - "second_rules.yml"</span>
+
+<span class="token comment"># A scrape configuration containing exactly one endpoint to scrape:</span>
+<span class="token comment"># Here it's Prometheus itself.</span>
+scrape_configs:
+  <span class="token comment"># The job name is added as a label `job=&lt;job_name>` to any timeseries scraped from this config.</span>
+  - job_name: <span class="token string">'prometheus'</span>
+
+    <span class="token comment"># metrics_path defaults to '/metrics'</span>
+    <span class="token comment"># scheme defaults to 'http'.</span>
+
+    static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">'localhost:9090'</span><span class="token punctuation">]</span>
+<span class="token comment">#追加以下内容</span>
+  - job_name: <span class="token string">'node_exporter-1'</span>
+    static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">'localhost:9101'</span><span class="token punctuation">]</span> <span class="token comment">#安装node_exporter的服务器</span>
+<span class="token comment">#追加以下内容</span>
+  - job_name: <span class="token string">'mhxw'</span>
+    static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">'47.242.76.64:26635'</span><span class="token punctuation">]</span> <span class="token comment">#安装mhxw的服务器</span>
+<span class="token comment">#追加以下内容</span>
+  - job_name: <span class="token string">'alertmanager'</span>
+    static_configs:
+    - targets: <span class="token punctuation">[</span><span class="token string">'localhost:1998'</span><span class="token punctuation">]</span> <span class="token comment">#alertmanager</span>
+
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>检查并重新加载配置文件</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/usr/local/Prometheus/promtool check config /usr/local/Prometheus/prometheus.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h3 id="2、创建告警目录-添加报警规则"><a href="#2、创建告警目录-添加报警规则" class="headerlink" title="2、创建告警目录&amp;添加报警规则"></a>2、创建告警目录&amp;添加报警规则</h3><p>在prometheus.yml的同级目录下，创建rules目录，在该rules目录下创建node_alerts.yml文件，内容如下：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> rules <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> rules/
+
+<span class="token function">touch</span> node_alerts.yml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>文件内容</p>
+<blockquote>
+<p>注意</p>
+<p>为了方便测试，我这里把调整磁盘使用率阀值测试报警调整到1，然后重新加载配置。</p>
+</blockquote>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">groups:
+  - name: node_status
+    rules:
+    - alert: DiskUsageAlert_warning
+      expr: <span class="token punctuation">(</span><span class="token number">1</span> - node_filesystem_free_bytes<span class="token punctuation">&#123;</span>fstype<span class="token operator">!=</span><span class="token string">"rootfs"</span>,mountpoint<span class="token operator">!=</span><span class="token string">""</span>,mountpoint<span class="token operator">!</span>~<span class="token string">"/(run|var|sys|dev).*"</span><span class="token punctuation">&#125;</span> / node_filesystem_size_bytes<span class="token punctuation">)</span> * <span class="token number">100</span> <span class="token operator">></span> <span class="token number">1</span>
+      for: 2m
+      labels:
+        level: warning
+      annotations:
+        summary: <span class="token string">"主机 &#123;&#123; <span class="token variable">$labels</span>.instance &#125;&#125; 磁盘使用率高"</span>
+        description: <span class="token string">"&#123;&#123;<span class="token variable">$labels</span>.instance&#125;&#125;: 磁盘使用率超过80％ (当前占比为: &#123;&#123; <span class="token variable">$value</span> &#125;&#125;)"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3、重启Prometheus"><a href="#3、重启Prometheus" class="headerlink" title="3、重启Prometheus"></a>3、重启Prometheus</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl restart prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>警报有三种状态：</p>
+<ul>
+<li><p>Inactive 警报未激活；</p>
+</li>
+<li><p>Pending：警报已满足测试表达式条件，但未达到for指定的持续时间；</p>
+</li>
+<li><p>Firing：警报满足测试表达式条件，且持续时间达到了for指定的持续时间；</p>
+</li>
+</ul>
+<h3 id="4、查看邮件"><a href="#4、查看邮件" class="headerlink" title="4、查看邮件"></a>4、查看邮件</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://zhuanlan.zhihu.com/p/74932366
+http://www.linuxe.cn/post-514.html
+https://www.cnblogs.com/longcnblogs/p/9620733.html
+https://www.cnblogs.com/jiujuan/p/13262380.html<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/prometheus/" rel="tag"># prometheus</a>
+              <a href="/tags/alertmanager/" rel="tag"># alertmanager</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-04-25-install-prometheus-on-linux/" rel="prev" title="Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控">
+                  <i class="fa fa-angle-left"></i> Prometheus(普罗米修斯)+Grafana+Node Export实现服务器性能监控
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-05-09--instll-nginx-on-ubuntu/" rel="next" title="Ubuntu 20.04 安装Nginx到指定目录">
+                  Ubuntu 20.04 安装Nginx到指定目录 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
