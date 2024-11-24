@@ -586,7 +586,8 @@ pre {
   margin: 0 auto 20px;
 }
 figure.highlight figcaption,
-pre .caption {
+pre .caption,
+pre figcaption {
   background: var(--highlight-gutter-background);
   color: var(--highlight-foreground);
   display: flow-root;
@@ -595,12 +596,14 @@ pre .caption {
   padding: 0.5em;
 }
 figure.highlight figcaption a,
-pre .caption a {
+pre .caption a,
+pre figcaption a {
   color: var(--highlight-foreground);
   float: right;
 }
 figure.highlight figcaption a:hover,
-pre .caption a:hover {
+pre .caption a:hover,
+pre figcaption a:hover {
   border-bottom-color: var(--highlight-foreground);
 }
 pre,
@@ -640,6 +643,8 @@ figure.highlight td {
   padding: 0;
 }
 figure.highlight .gutter {
+  -moz-user-select: none;
+  -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -657,7 +662,8 @@ figure.highlight .code pre {
 figure.highlight .marked {
   background: rgba(0,0,0,0.3);
 }
-pre .caption {
+pre .caption,
+pre figcaption {
   margin-bottom: 10px;
 }
 .gist table {
@@ -753,9 +759,14 @@ pre code {
   display: grid;
   grid-gap: 1.5rem;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr 1fr;
   margin-bottom: 20px;
   padding: 1rem;
+}
+@media (max-width: 767px) {
+  .post-body .link-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .post-body .link-grid .link-grid-container {
   border: solid #ddd;
@@ -943,6 +954,7 @@ pre code {
   justify-content: center;
   margin: 0;
   padding: 0;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 5;
@@ -1311,7 +1323,7 @@ pre code {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #b0fff7;
+  background: #cfdd38;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
@@ -1767,7 +1779,8 @@ pre code {
   .post-body video {
     margin-bottom: 10px !important;
   }
-  .post-body figure:not(.highlight) figcaption {
+  .post-body img + figcaption,
+  .post-body .fancybox + figcaption {
     margin: -5px auto 15px !important;
   }
   .post-body .note {
@@ -2061,7 +2074,8 @@ pre code {
   font-size: 0.875em;
   margin-left: 4px;
 }
-.post-body figure:not(.highlight) figcaption {
+.post-body img + figcaption,
+.post-body .fancybox + figcaption {
   color: #999;
   font-size: 0.875em;
   font-weight: bold;
@@ -2494,6 +2508,105 @@ ul.breadcrumb li:last-child {
 .tag-cloud-10 {
   border-bottom-color: #111;
   color: #111;
+}
+.search-active {
+  overflow: hidden;
+}
+.search-pop-overlay {
+  background: rgba(0,0,0,0);
+  display: flex;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  transition: visibility 0.4s, background 0.4s;
+  visibility: hidden;
+  width: 100%;
+  z-index: 40;
+}
+.search-active .search-pop-overlay {
+  background: rgba(0,0,0,0.3);
+  visibility: visible;
+}
+.search-popup {
+  background: var(--card-bg-color);
+  border-radius: 5px;
+  height: 80%;
+  margin: auto;
+  transform: scale(0);
+  transition: transform 0.4s;
+  width: 700px;
+}
+.search-active .search-popup {
+  transform: scale(1);
+}
+@media (max-width: 767px) {
+  .search-popup {
+    border-radius: 0;
+    height: 100%;
+    width: 100%;
+  }
+}
+.search-popup .search-icon,
+.search-popup .popup-btn-close {
+  color: #999;
+  font-size: 18px;
+  padding: 0 10px;
+}
+.search-popup .popup-btn-close {
+  cursor: pointer;
+}
+.search-popup .popup-btn-close:hover .fa {
+  color: #222;
+}
+.search-popup .search-header {
+  background: #eee;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  display: flex;
+  padding: 5px;
+}
+.search-popup input.search-input {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  width: 100%;
+}
+.search-popup input.search-input::-webkit-search-cancel-button {
+  display: none;
+}
+.search-popup .search-result-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 55px);
+  overflow: auto;
+  padding: 5px 25px;
+}
+.search-popup .search-result-container hr {
+  flex-shrink: 0;
+  margin: 5px 0 10px;
+}
+.search-popup .search-result-container hr:first-child {
+  display: none;
+}
+.search-popup .search-result-list {
+  margin: 0 5px;
+  padding: 0;
+}
+.search-popup a.search-result-title {
+  font-weight: bold;
+}
+.search-popup p.search-result {
+  border-bottom: 1px dashed #ccc;
+  padding: 5px 0;
+}
+.search-popup .search-input-container {
+  flex-grow: 1;
+  padding: 2px;
+}
+.search-popup .search-result-icon {
+  color: #ccc;
+  margin: auto;
 }
 mark.search-keyword {
   background: transparent;
