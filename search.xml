@@ -922,58 +922,6 @@ https:&#x2F;&#x2F;blog.csdn.net&#x2F;qq_27348837&#x2F;article&#x2F;details&#x2F;
       </tags>
   </entry>
   <entry>
-    <title>Mac下安装与配置Go语言开发环境</title>
-    <url>/2018-12-13-mac-install-golang/</url>
-    <content><![CDATA[<p><img src="http://p1.pstatp.com/large/pgc-image/132340be8ea24014a7e191ea66ce96b0" alt="image.png"></p>
-<ol>
-<li>国内网站下载Mac版安装包<pre class="line-numbers language-none"><code class="language-none">https:&#x2F;&#x2F;studygolang.com&#x2F;dl<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-<li>配置GO环境变量GOPATH和GOBIN</li>
-</ol>
-<ul>
-<li>打开Mac终端，编辑<code>.bash_profile</code>文件<span id="more"></span>
-<pre class="line-numbers language-none"><code class="language-none">vi ~&#x2F;.bash_profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-<li>在<code>.bash_profile</code>文件中添加环境变量<pre class="line-numbers language-none"><code class="language-none">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go
-#GOPATH是自己的go项目路径，自定义设置
-export GOPATH&#x3D;&#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go
-export GOBIN&#x3D;$GOROOT&#x2F;bin
-export PATH&#x3D;$PATH:$GOBIN<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
-<li>编译使其生效<pre class="line-numbers language-none"><code class="language-none">source ~&#x2F;.bash_profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-</ul>
-<ol start="3">
-<li>查看相关参数</li>
-</ol>
-<ul>
-<li>查看Go版本<pre class="line-numbers language-none"><code class="language-none">go version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-<li>查看Go环境变量<pre class="line-numbers language-none"><code class="language-none">go env<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-</ul>
-<ol start="4">
-<li>编辑测试Demo</li>
-</ol>
-<ul>
-<li>在gopath目录中新建项目，名称自定义，然后新建测试文件并保存。<pre class="line-numbers language-none"><code class="language-none">package main
- 
-import (
-  &quot;fmt&quot;
-)
- 
-func main() &#123;
-  fmt.Println(&quot;hello&quot;);
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
-<li>运行测试：在测试文件所在目录运行下方指令<pre class="line-numbers language-none"><code class="language-none">#编译并执行
-go build &#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go&#x2F;test&#x2F;main.go
-#只看执行结果
-go run &#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go&#x2F;test&#x2F;main.go<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
-</ul>
-]]></content>
-      <categories>
-        <category>技术教程</category>
-      </categories>
-      <tags>
-        <tag>golang</tag>
-        <tag>mac</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>PBFT，Raft，PoW，PoS，DPoS，Ripple共识讲解</title>
     <url>/2018-12-15-consensus-algorithm2/</url>
     <content><![CDATA[<h2 id="BFT：Byzantine-Fault-Tolerance，拜占庭容错技术"><a href="#BFT：Byzantine-Fault-Tolerance，拜占庭容错技术" class="headerlink" title="BFT：Byzantine Fault Tolerance，拜占庭容错技术"></a>BFT：Byzantine Fault Tolerance，拜占庭容错技术</h2><hr>
@@ -1040,6 +988,58 @@ go run &#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go&#x2F;test&#x2F;main.go<span 
       </categories>
       <tags>
         <tag>blockchain</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mac下安装与配置Go语言开发环境</title>
+    <url>/2018-12-13-mac-install-golang/</url>
+    <content><![CDATA[<p><img src="http://p1.pstatp.com/large/pgc-image/132340be8ea24014a7e191ea66ce96b0" alt="image.png"></p>
+<ol>
+<li>国内网站下载Mac版安装包<pre class="line-numbers language-none"><code class="language-none">https:&#x2F;&#x2F;studygolang.com&#x2F;dl<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li>配置GO环境变量GOPATH和GOBIN</li>
+</ol>
+<ul>
+<li>打开Mac终端，编辑<code>.bash_profile</code>文件<span id="more"></span>
+<pre class="line-numbers language-none"><code class="language-none">vi ~&#x2F;.bash_profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li>在<code>.bash_profile</code>文件中添加环境变量<pre class="line-numbers language-none"><code class="language-none">export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go
+#GOPATH是自己的go项目路径，自定义设置
+export GOPATH&#x3D;&#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go
+export GOBIN&#x3D;$GOROOT&#x2F;bin
+export PATH&#x3D;$PATH:$GOBIN<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li>编译使其生效<pre class="line-numbers language-none"><code class="language-none">source ~&#x2F;.bash_profile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+</ul>
+<ol start="3">
+<li>查看相关参数</li>
+</ol>
+<ul>
+<li>查看Go版本<pre class="line-numbers language-none"><code class="language-none">go version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li>查看Go环境变量<pre class="line-numbers language-none"><code class="language-none">go env<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+</ul>
+<ol start="4">
+<li>编辑测试Demo</li>
+</ol>
+<ul>
+<li>在gopath目录中新建项目，名称自定义，然后新建测试文件并保存。<pre class="line-numbers language-none"><code class="language-none">package main
+ 
+import (
+  &quot;fmt&quot;
+)
+ 
+func main() &#123;
+  fmt.Println(&quot;hello&quot;);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<li>运行测试：在测试文件所在目录运行下方指令<pre class="line-numbers language-none"><code class="language-none">#编译并执行
+go build &#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go&#x2F;test&#x2F;main.go
+#只看执行结果
+go run &#x2F;Users&#x2F;nrgh&#x2F;Documents&#x2F;Go&#x2F;test&#x2F;main.go<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>golang</tag>
+        <tag>mac</tag>
       </tags>
   </entry>
   <entry>
@@ -1250,6 +1250,29 @@ https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_41926234&#x2F;article&#x2F;details&#
       </tags>
   </entry>
   <entry>
+    <title>在Ubuntu上安装Golang</title>
+    <url>/2019-02-26-install-golang-on-ubuntu/</url>
+    <content><![CDATA[<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://golang.org/dl/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">wget</span> <span class="token parameter variable">-c</span> https://golang.org/dl/go1.16.5.linux-amd64.tar.gz <span class="token parameter variable">-O</span> - <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tar</span> <span class="token parameter variable">-xz</span> <span class="token parameter variable">-C</span> /mhxw<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<span id="more"></span>
+
+<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">vim</span> ~/.profile
+<span class="token builtin class-name">export</span> <span class="token assign-left variable"><span class="token environment constant">PATH</span></span><span class="token operator">=</span><span class="token environment constant">$PATH</span>:/mhxw/go/bin
+<span class="token builtin class-name">source</span> ~/.profile<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="校验版本"><a href="#校验版本" class="headerlink" title="校验版本"></a>校验版本</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">go version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>golang</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mac安装配置MongoDB</title>
     <url>/2019-01-05-mac-install-mongodb/</url>
     <content><![CDATA[<h3 id="安装MongoDB"><a href="#安装MongoDB" class="headerlink" title="安装MongoDB"></a>安装MongoDB</h3><hr>
@@ -1318,29 +1341,6 @@ https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_41926234&#x2F;article&#x2F;details&#
         <tag>mac</tag>
         <tag>mongodb</tag>
         <tag>database</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>在Ubuntu上安装Golang</title>
-    <url>/2019-02-26-install-golang-on-ubuntu/</url>
-    <content><![CDATA[<h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://golang.org/dl/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">wget</span> <span class="token parameter variable">-c</span> https://golang.org/dl/go1.16.5.linux-amd64.tar.gz <span class="token parameter variable">-O</span> - <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tar</span> <span class="token parameter variable">-xz</span> <span class="token parameter variable">-C</span> /mhxw<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<span id="more"></span>
-
-<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">vim</span> ~/.profile
-<span class="token builtin class-name">export</span> <span class="token assign-left variable"><span class="token environment constant">PATH</span></span><span class="token operator">=</span><span class="token environment constant">$PATH</span>:/mhxw/go/bin
-<span class="token builtin class-name">source</span> ~/.profile<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="校验版本"><a href="#校验版本" class="headerlink" title="校验版本"></a>校验版本</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">go version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-]]></content>
-      <categories>
-        <category>技术教程</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>golang</tag>
       </tags>
   </entry>
   <entry>
@@ -2760,44 +2760,6 @@ https:&#x2F;&#x2F;github.com&#x2F;jayphbee&#x2F;blockchain_notes&#x2F;blob&#x2F;
       </tags>
   </entry>
   <entry>
-    <title>Linux下查找进程id并强制停止进程的脚本</title>
-    <url>/2021-0-23-script-to-find-process-id-and-force-stop-process-under-linux/</url>
-    <content><![CDATA[<p>写一个简易脚本用来自动获取进程id并优雅关闭进程</p>
-<span id="more"></span>
-
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1、先获取进程id的方法，可以采用<code>awk</code>命令来获取</p>
-<blockquote>
-<p>这里要把这个grep这个用 -v 来过滤掉，然后用awk命令，提取第2个参数就是进程id了</p>
-</blockquote>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">ps -ef | grep 你的进程 | grep -v grep | awk '&#123;print $2&#125;'<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<ol start="2">
-<li>关闭进程</li>
-</ol>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">kill -15 你的进程id<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="脚本代码"><a href="#脚本代码" class="headerlink" title="脚本代码"></a>脚本代码</h2><blockquote>
-<p>注意：使用时，需要把第一行的 sp-tomcat 替换换成你希望杀的进程</p>
-</blockquote>
-<blockquote>
-<p>说明：可能有人会说查找进程出现多个进程id时，脚本会报错的。其实是不会的，出现多个进程id时，他们之间是有空格隔开来了的。刚好kill命令一次杀多个进程时，进程id需要用空格。所以不需要用for循环来杀进程</p>
-</blockquote>
-<pre class="line-numbers language-none"><code class="language-none">mhxw_pid&#x3D;&#96;ps -ef | grep sp-tomcat | grep -v grep | awk &#39;&#123;print $2&#125;&#39;&#96;
-if [ -z &quot;$mhxw_pid&quot; ];
-then
-  echo &quot;[ not find sp-tomcat pid ]&quot;
-else
-  echo &quot;find result: $sp_pid &quot;
-  kill -15 $sp_pid
-fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-]]></content>
-      <tags>
-        <tag>linux</tag>
-        <tag>shell</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>在Ubuntu 18.04上安装Discourse Docker镜像</title>
     <url>/2021-02-27-install-discourse-on-ubuntu-18-04/</url>
     <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Discourse是一个开源的讨论平台。您可以将Discourse用作邮件列表，讨论论坛或长型聊天室。在本教程中，您将使用Docker在独立的环境中安装Discourse。<br>Docker环境中安装Discourse，并配置独立的Nginx和SSL</p>
@@ -2829,8 +2791,8 @@ fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><
 <p>域名修改、SMTP服务器参数修改</p>
 <ul>
 <li>gov.mhxw.life：论坛域名</li>
-<li><a href="mailto:&#x61;&#x64;&#109;&#x69;&#110;&#64;&#x6d;&#x68;&#x78;&#x77;&#x2e;&#x6c;&#105;&#x66;&#101;">&#x61;&#x64;&#109;&#x69;&#110;&#64;&#x6d;&#x68;&#x78;&#x77;&#x2e;&#x6c;&#105;&#x66;&#101;</a>：管理员邮箱</li>
-<li><a href="mailto:&#x78;&#x78;&#120;&#x78;&#64;&#102;&#111;&#x78;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;">&#x78;&#x78;&#120;&#x78;&#64;&#102;&#111;&#x78;&#x6d;&#97;&#105;&#x6c;&#x2e;&#99;&#111;&#109;</a>：发送信息邮箱</li>
+<li><a href="mailto:&#97;&#x64;&#x6d;&#x69;&#x6e;&#64;&#109;&#x68;&#120;&#x77;&#46;&#108;&#105;&#x66;&#x65;">&#97;&#x64;&#x6d;&#x69;&#x6e;&#64;&#109;&#x68;&#120;&#x77;&#46;&#108;&#105;&#x66;&#x65;</a>：管理员邮箱</li>
+<li><a href="mailto:&#x78;&#x78;&#x78;&#x78;&#64;&#x66;&#x6f;&#120;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#109;">&#x78;&#x78;&#x78;&#x78;&#64;&#x66;&#x6f;&#120;&#109;&#97;&#105;&#x6c;&#46;&#x63;&#x6f;&#109;</a>：发送信息邮箱</li>
 </ul>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 网站域名</span>
 DISCOURSE_HOSTNAME: <span class="token string">'gov.mhxw.life'</span>
@@ -3042,6 +3004,44 @@ run:
         <tag>ubuntu</tag>
         <tag>docker</tag>
         <tag>discourse</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux下查找进程id并强制停止进程的脚本</title>
+    <url>/2021-0-23-script-to-find-process-id-and-force-stop-process-under-linux/</url>
+    <content><![CDATA[<p>写一个简易脚本用来自动获取进程id并优雅关闭进程</p>
+<span id="more"></span>
+
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1、先获取进程id的方法，可以采用<code>awk</code>命令来获取</p>
+<blockquote>
+<p>这里要把这个grep这个用 -v 来过滤掉，然后用awk命令，提取第2个参数就是进程id了</p>
+</blockquote>
+<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">ps -ef | grep 你的进程 | grep -v grep | awk '&#123;print $2&#125;'<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ol start="2">
+<li>关闭进程</li>
+</ol>
+<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">kill -15 你的进程id<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="脚本代码"><a href="#脚本代码" class="headerlink" title="脚本代码"></a>脚本代码</h2><blockquote>
+<p>注意：使用时，需要把第一行的 sp-tomcat 替换换成你希望杀的进程</p>
+</blockquote>
+<blockquote>
+<p>说明：可能有人会说查找进程出现多个进程id时，脚本会报错的。其实是不会的，出现多个进程id时，他们之间是有空格隔开来了的。刚好kill命令一次杀多个进程时，进程id需要用空格。所以不需要用for循环来杀进程</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">mhxw_pid&#x3D;&#96;ps -ef | grep sp-tomcat | grep -v grep | awk &#39;&#123;print $2&#125;&#39;&#96;
+if [ -z &quot;$mhxw_pid&quot; ];
+then
+  echo &quot;[ not find sp-tomcat pid ]&quot;
+else
+  echo &quot;find result: $sp_pid &quot;
+  kill -15 $sp_pid
+fi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+]]></content>
+      <tags>
+        <tag>linux</tag>
+        <tag>shell</tag>
       </tags>
   </entry>
   <entry>
@@ -3959,41 +3959,6 @@ Swarm: inactive
       </tags>
   </entry>
   <entry>
-    <title>Linux运维和Docker 相关使用</title>
-    <url>/2021-06-06-docker/</url>
-    <content><![CDATA[<h2 id="Docker-使用教程"><a href="#Docker-使用教程" class="headerlink" title="Docker 使用教程"></a>Docker 使用教程</h2><p>docker 停止机器</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> stop dfd5ea286723<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>docker 删除容器</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">rm</span> dfd5ea286723<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<span id="more"></span>
-<p>docker 删除镜像</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> rmi f4fd1bb745b2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>查看docker日志</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">docker</span> logs <span class="token parameter variable">-f</span> bc27c52f48eb9bbfc7146527f92b1de1b9665a7ccbedc59b23f7e3452b049707<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="Linux-使用教程"><a href="#Linux-使用教程" class="headerlink" title="Linux 使用教程"></a>Linux 使用教程</h2><p>查看服务器相关配置</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">htop</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="Tmux-使用教程"><a href="#Tmux-使用教程" class="headerlink" title="Tmux 使用教程"></a>Tmux 使用教程</h2><ul>
-<li>安装</li>
-</ul>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> tmux<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<ul>
-<li>新建一个指定名称的会话</li>
-</ul>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">tmux new <span class="token parameter variable">-s</span> prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-]]></content>
-      <categories>
-        <category>Linux相关</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>使用Docker安装Prometheus+Grafana+AlertManager</title>
     <url>/2021-06-06-install-prometheus-grafana-alertmanager-by-docker/</url>
     <content><![CDATA[<h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>本篇文章是基于以下三篇的改良和升级，由宿主机安装改为Docker方式安装。</p>
@@ -4230,6 +4195,41 @@ main.main<span class="token punctuation">(</span><span class="token punctuation"
         <tag>grafana</tag>
         <tag>prometheus</tag>
         <tag>alertmanager</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux运维和Docker 相关使用</title>
+    <url>/2021-06-06-docker/</url>
+    <content><![CDATA[<h2 id="Docker-使用教程"><a href="#Docker-使用教程" class="headerlink" title="Docker 使用教程"></a>Docker 使用教程</h2><p>docker 停止机器</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> stop dfd5ea286723<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>docker 删除容器</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">rm</span> dfd5ea286723<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<span id="more"></span>
+<p>docker 删除镜像</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> rmi f4fd1bb745b2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>查看docker日志</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">docker</span> logs <span class="token parameter variable">-f</span> bc27c52f48eb9bbfc7146527f92b1de1b9665a7ccbedc59b23f7e3452b049707<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="Linux-使用教程"><a href="#Linux-使用教程" class="headerlink" title="Linux 使用教程"></a>Linux 使用教程</h2><p>查看服务器相关配置</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">htop</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="Tmux-使用教程"><a href="#Tmux-使用教程" class="headerlink" title="Tmux 使用教程"></a>Tmux 使用教程</h2><ul>
+<li>安装</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> tmux<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li>新建一个指定名称的会话</li>
+</ul>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">tmux new <span class="token parameter variable">-s</span> prometheus<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+]]></content>
+      <categories>
+        <category>Linux相关</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
       </tags>
   </entry>
   <entry>
@@ -4984,7 +4984,7 @@ truffle migrate --network testnet<span aria-hidden="true" class="line-numbers-ro
   </entry>
   <entry>
     <title>如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)</title>
-    <url>/2024-11-24-how-to-deploy-vanity-addresses-on-evm/</url>
+    <url>/2024-11-23-how-to-deploy-vanity-addresses-on-evm/</url>
     <content><![CDATA[<blockquote>
 <p>本篇仅对普通合约(非代理合约进行)进行讲解。</p>
 </blockquote>
@@ -5011,6 +5011,8 @@ truffle migrate --network testnet<span aria-hidden="true" class="line-numbers-ro
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> <span class="token parameter variable">--proto</span> <span class="token string">'=https'</span> <span class="token parameter variable">--tlsv1.2</span> <span class="token parameter variable">-sSf</span> https://sh.rustup.rs <span class="token operator">|</span> <span class="token function">sh</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>安装完成后，进入仓库目录并构建程序：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cargo</span> build <span class="token parameter variable">--release</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <h3 id="步骤3：定义关键参数"><a href="#步骤3：定义关键参数" class="headerlink" title="步骤3：定义关键参数"></a>步骤3：定义关键参数</h3><p>在运行程序前，需定义以下变量：</p>
 <ol>
 <li>Factory Address: The address of the factory or contract that will execute CREATE2. For example:<br>工厂地址：将执行 CREATE2 的工厂合约地址。例如：</li>
@@ -5037,7 +5039,7 @@ truffle migrate --network testnet<span aria-hidden="true" class="line-numbers-ro
     t.Log(initCodeHash)
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/images/2024-11-24-01.png" alt="bytecode字段"></p>
+<p><img src="/images/2024-11-23-01.png" alt="bytecode字段"></p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">export</span> <span class="token assign-left variable">INIT_CODE_HASH</span><span class="token operator">=</span><span class="token string">"0xYourContractInitCodeHashHere"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h3 id="步骤4：运行-create2crunch"><a href="#步骤4：运行-create2crunch" class="headerlink" title="步骤4：运行 create2crunch"></a>步骤4：运行 create2crunch</h3><p>使用上述参数运行程序：</p>
@@ -5045,6 +5047,316 @@ truffle migrate --network testnet<span aria-hidden="true" class="line-numbers-ro
 
 <p>该工具将搜索可生成靓号地址的盐值。结果（包括盐值、生成的地址及其稀有性评分）将保存到 efficient_addresses.txt 文件中。</p>
 <h2 id="验证结果"><a href="#验证结果" class="headerlink" title="验证结果"></a>验证结果</h2><p>获得结果后，必须验证盐值并确保生成的地址符合预期。如果工厂合约提供了通过盐值模拟地址生成的 view 方法，务必在部署前使用它确认靓号地址。</p>
+]]></content>
+      <categories>
+        <category>EVM</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide])</title>
+    <url>/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/</url>
+    <content><![CDATA[<p>在以太坊虚拟机（EVM）中，合约地址的生成基于部署者地址和交易数据的哈希，因此可以通过一些技巧生成具有特定特点的“靓号”地址。这种技术被广泛应用于个性化品牌展示、降低用户错误操作的可能性，甚至是提高项目的营销吸引力。</p>
+<span id="more"></span>
+
+<h2 id="靓号地址生成机制"><a href="#靓号地址生成机制" class="headerlink" title="靓号地址生成机制"></a>靓号地址生成机制</h2><p>   在 EVM 中，合约地址的生成取决于以下两种机制：</p>
+<ol>
+<li>普通部署：</li>
+</ol>
+<ul>
+<li>使用 CREATE 指令，生成的地址为：  <pre class="line-numbers language-code" data-language="code"><code class="language-code">keccak256(rlp([sender, nonce]))<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>sender：部署者地址</li>
+<li>nonce：部署者的交易计数</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>确定性部署：</li>
+</ol>
+<ul>
+<li>使用 CREATE2 指令，生成的地址为：  <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">keccak256<span class="token punctuation">(</span>0xff ++ sender ++ salt ++ keccak256<span class="token punctuation">(</span>bytecode<span class="token punctuation">))</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li>sender：部署者地址（工厂合约地址）</li>
+<li>salt：任意 32 字节数据，用于影响地址生成</li>
+<li>bytecode：合约的初始化字节码</li>
+</ul>
+<p>通过 <code>CREATE2</code> 的 <code>salt</code> 和 <code>bytecode</code>，我们可以更精细地控制合约地址。</p>
+<h2 id="使用-UUPS-模式生成靓号"><a href="#使用-UUPS-模式生成靓号" class="headerlink" title="使用 UUPS 模式生成靓号"></a>使用 UUPS 模式生成靓号</h2><blockquote>
+<p>zora之前使用<a href="https://etherscan.deth.net/address/0xf68e8da655bedeb3cfbdae7871ca82d603523447">DeterministicUUPSProxyDeployer</a>合约进行UUPS部署，后来改成通过<a href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83">DeterministicDeployerAndCaller</a>部署。<br>本小节将以 DeterministicUUPSProxyDeployer 为例进行讲解，而下一小节中，关于透明代理和普通合约代理的内容，将以 DeterministicDeployerAndCaller 为例进行说明。</p>
+</blockquote>
+<p>在以太坊中，通过 CREATE2 的确定性部署机制，可以为 UUPS 合约生成“靓号”地址。为此，可以借助 Zora 官方提供的 DeterministicUUPSProxyDeployer 合约实现高效部署。</p>
+<p>本节将结合 OpenZeppelin 的 UUPS 代理合约与 Zora 的 DeterministicUUPSProxyDeployer 合约，逐步讲解如何生成靓号地址。在操作前，请确保熟悉上述合约的代码逻辑。</p>
+<p>以openzeppelin 的uups代理合约为例，在部署代理合约时候，构造函数需要传入参数。构造函数的参数会拼接在合约初始化代码后面，这个后面会用到。</p>
+<ul>
+<li>DeterministicUUPSProxyDeployer</li>
+</ul>
+<p><a href="https://github.com/ourzora/zora-protocol/blob/748be1ab013b658924248af76dc39aafa4a2faf8/packages/shared-contracts/src/deployment/DeterministicUUPSProxyDeployer.sol">https://github.com/ourzora/zora-protocol/blob/748be1ab013b658924248af76dc39aafa4a2faf8/packages/shared-contracts/src/deployment/DeterministicUUPSProxyDeployer.sol</a></p>
+<ul>
+<li>UUPS</li>
+</ul>
+<p><a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/ERC1967/ERC1967Proxy.sol#L26">https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/ERC1967/ERC1967Proxy.sol#L26</a></p>
+<p>实操你可以查看此交易</p>
+<p><a href="https://explorer.zora.energy/tx/0xbb5023241d778352ae5963c977382b8eeae91afc9ef0ca4c543b2e12a2fe4738">https://explorer.zora.energy/tx/0xbb5023241d778352ae5963c977382b8eeae91afc9ef0ca4c543b2e12a2fe4738</a><br><a href="https://explorer.zora.energy/tx/0x9157f50c80a93ae135267644e6fd4ae9b5b558fce2f86557445fe0aeda535d09">https://explorer.zora.energy/tx/0x9157f50c80a93ae135267644e6fd4ae9b5b558fce2f86557445fe0aeda535d09</a></p>
+<p>以 <a href="https://explorer.zora.energy/address/0x77777779acd6a96C0c57272112921A0b833c38fD?tab=contract">ZoraMintsManager</a> 的 UUPS 代理合约 为例，代理合约的构造函数如下：</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token builtin">address</span> _logic<span class="token punctuation">)</span> <span class="token function">ERC1967Proxy</span><span class="token punctuation">(</span>_logic<span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>该构造函数在部署时需要传入两个关键参数：</p>
+<ul>
+<li><code>_logic</code>：实现合约的地址。</li>
+</ul>
+<p>在 EVM 中，合约的构造函数参数会被拼接到初始化代码（<code>creation code</code>）的末尾，这一点对于生成靓号地址尤为重要。</p>
+<h3 id="1-调用safeCreate2AndUpgradeToAndCall函数"><a href="#1-调用safeCreate2AndUpgradeToAndCall函数" class="headerlink" title="1. 调用safeCreate2AndUpgradeToAndCall函数"></a>1. 调用safeCreate2AndUpgradeToAndCall函数</h3><p>开发者通过调用DeterministicUUPSProxyDeployer合约的safeCreate2AndUpgradeToAndCall函数进行部署。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Creates a contract using create2, and then calls an initialization function on it.</span>
+<span class="token comment">/// First 20 bytes of salt must match the msg.sender</span>
+<span class="token comment">/// @param proxySalt Salt to create the contract with</span>
+<span class="token comment">/// @param proxyCode contract creation code</span>
+<span class="token comment">/// @param initialImplementation address to upgrade to</span>
+<span class="token comment">/// @param postUpgradeCall what to call on the contract after upgrading</span>
+<span class="token comment">/// @param _expectedAddress expected address of the created contract</span>
+<span class="token keyword">function</span> <span class="token function">safeCreate2AndUpgradeToAndCall</span><span class="token punctuation">(</span>
+    <span class="token builtin">bytes32</span> proxySalt<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> proxyCode<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> initialImplementation<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postUpgradeCall<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> _expectedAddress
+<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">,</span> proxySalt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">_getOrCreateProxyShim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> _proxyCreationCode <span class="token operator">=</span> <span class="token function">proxyCreationCode</span><span class="token punctuation">(</span>proxyCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> proxySalt<span class="token punctuation">,</span> _proxyCreationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>proxyAddress <span class="token operator">!=</span> _expectedAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> proxyAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token function">UUPSUpgradeable</span><span class="token punctuation">(</span>proxyAddress<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">upgradeToAndCall</span><span class="token punctuation">(</span>initialImplementation<span class="token punctuation">,</span> postUpgradeCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>里面涉及传参数有：</p>
+<ul>
+<li>proxySalt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>proxyCode：<ul>
+<li>代理合约的初始化代码（creation code），不包含构造函数参数。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>initialImplementation：已经部署的实现合约地址。</li>
+<li>postUpgradeCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt"><a href="#2-requireContainsCaller-msg-sender-proxySalt" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-getOrCreateProxyShim"><a href="#3-getOrCreateProxyShim" class="headerlink" title="3. _getOrCreateProxyShim();"></a>3. <code>_getOrCreateProxyShim();</code></h3><p>这行代码通过 <code>CREATE2</code> 获取或创建一个 <code>ProxyShim</code> 合约。<code>ProxyShim</code> 是一个轻量级 UUPS 实现合约，用作代理合约的占位实现地址。在多链部署中，使用固定的 <code>ProxyShim</code> 地址可以确保代理地址一致，后续通过升级机制替换为实际实现合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_getOrCreateProxyShim</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span>ProxyShim proxyShim<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// check if initial implementation has been created</span>
+    <span class="token comment">// get create 2 address for initial implementation</span>
+    <span class="token builtin">address</span> _proxyShimAddress <span class="token operator">=</span> <span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_proxyShimAddress<span class="token punctuation">.</span>code<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        proxyShim <span class="token operator">=</span> <span class="token function">ProxyShim</span><span class="token punctuation">(</span>_proxyShimAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// create initial implementation at determinstic address</span>
+        proxyShim <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ProxyShim</span><span class="token punctuation">&#123;</span>salt<span class="token punctuation">:</span> INITIAL_IMPLEMENTATION_SALT<span class="token punctuation">&#125;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">contract</span> <span class="token class-name">ProxyShim</span> <span class="token keyword">is</span> UUPSUpgradeable <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> immutable canUpgrade<span class="token punctuation">;</span>
+
+    <span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// defaults to msg.sender being address(this)</span>
+        canUpgrade <span class="token operator">=</span> msg<span class="token punctuation">.</span>sender<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">function</span> <span class="token function">_authorizeUpgrade</span><span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">view</span> override <span class="token punctuation">&#123;</span>
+        <span class="token keyword">require</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender <span class="token operator">==</span> canUpgrade<span class="token punctuation">,</span> <span class="token string">"not authorized"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-bytes-memory-proxyCreationCode-proxyCreationCode-proxyCode"><a href="#4-bytes-memory-proxyCreationCode-proxyCreationCode-proxyCode" class="headerlink" title="4. bytes memory _proxyCreationCode &#x3D; proxyCreationCode(proxyCode);"></a>4. bytes memory _proxyCreationCode &#x3D; proxyCreationCode(proxyCode);</h3><p>这行代码的作用是将代理合约的初始化代码（proxyCode）与其构造函数参数拼接，生成完整的合约部署代码的<code>creation bytecode</code>。</p>
+<blockquote>
+<p>如果代理合约是 OpenZeppelin 提供的标准 UUPS 代理合约，其构造函数的参数和初始化逻辑通常是这样的：<br>如果构造函数需要两个参数（逻辑合约地址和初始化数据），完整的构造函数调用数据（即 data 参数）通常通过 abi.encode 编码：<br>bytes memory data &#x3D; abi.encode(_logic, _data);</p>
+</blockquote>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Initialization code for the proxy, including the constructor args</span>
+<span class="token keyword">function</span> <span class="token function">proxyCreationCode</span><span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span> transparentProxyCode<span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span>transparentProxyCode<span class="token punctuation">,</span> <span class="token function">proxyConstructorArgs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">/// Constructor args when creating the proxy</span>
+<span class="token keyword">function</span> <span class="token function">proxyConstructorArgs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span><span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token builtin">bytes32</span> <span class="token keyword">constant</span> INITIAL_IMPLEMENTATION_SALT <span class="token operator">=</span> <span class="token builtin">bytes32</span><span class="token punctuation">(</span><span class="token number">0x0000000000000000000000000000000000000000000000000000000000000000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/// Address of the proxy shim contract that is used to upgrade the factory proxy</span>
+<span class="token keyword">function</span> <span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>INITIAL_IMPLEMENTATION_SALT<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span><span class="token function">type</span><span class="token punctuation">(</span>ProxyShim<span class="token punctuation">)</span><span class="token punctuation">.</span>creationCode<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-通过create2方式创建代理合约地址"><a href="#5-通过create2方式创建代理合约地址" class="headerlink" title="5. 通过create2方式创建代理合约地址"></a>5. 通过create2方式创建代理合约地址</h3><p>这段代码通过 CREATE2 指令部署代理合约，随后验证生成的合约地址是否与预期地址 _expectedAddress 一致。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">// create the proxy</span>
+<span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> proxySalt<span class="token punctuation">,</span> _proxyCreationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>proxyAddress <span class="token operator">!=</span> _expectedAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> proxyAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-执行upgradeToAndCall"><a href="#6-执行upgradeToAndCall" class="headerlink" title="6. 执行upgradeToAndCall"></a>6. 执行upgradeToAndCall</h3><p>这段代码的目的是设置代理合约的实现合约地址，并通过调用逻辑合约中的初始化函数完成必要的初始化操作。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token function">UUPSUpgradeable</span><span class="token punctuation">(</span>proxyAddress<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">upgradeToAndCall</span><span class="token punctuation">(</span>initialImplementation<span class="token punctuation">,</span> postUpgradeCall<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/images/2024-11-24-01.png" alt="实操你可以查看此交易"></p>
+<h2 id="使用透明代理模式生成靓号"><a href="#使用透明代理模式生成靓号" class="headerlink" title="使用透明代理模式生成靓号"></a>使用透明代理模式生成靓号</h2><p>可以采用zora官方部署的<a href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83"><code>DeterministicDeployerAndCaller</code></a>合约。</p>
+<blockquote>
+<p>DeterministicDeployerAndCaller 合约支持UUPS、透明代理、普通合约等其他类型合约部署。</p>
+</blockquote>
+<p><a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/transparent/TransparentUpgradeableProxy.sol#L79">https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/transparent/TransparentUpgradeableProxy.sol#L79</a></p>
+<h3 id="1-调用safeCreate2AndCall函数"><a href="#1-调用safeCreate2AndCall函数" class="headerlink" title="1. 调用safeCreate2AndCall函数"></a>1. 调用safeCreate2AndCall函数</h3><p>开发者通过调用<code>DeterministicDeployerAndCaller</code>合约的<code>safeCreate2AndCall</code>或者<code>permitSafeCreate2AndCall</code>函数进行部署。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Creates a contract using create2, and then calls an initialization function on it.</span>
+<span class="token comment">/// First 20 bytes of salt must match the msg.sender</span>
+<span class="token comment">/// @param salt Salt to create the contract with</span>
+<span class="token comment">/// @param code contract creation code</span>
+<span class="token comment">/// @param postCreateCall what to call on the contract after deploying it</span>
+<span class="token comment">/// @param _expectedAddress expected address of the created contract</span>
+<span class="token keyword">function</span> <span class="token function">safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">,</span> _expectedAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">permitSafeCreate2AndCall</span><span class="token punctuation">(</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> signature<span class="token punctuation">,</span>
+    <span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> _expectedAddress
+<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> signer <span class="token operator">=</span> ECDSA<span class="token punctuation">.</span><span class="token function">recover</span><span class="token punctuation">(</span><span class="token function">hashDigest</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">)</span><span class="token punctuation">,</span> signature<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">,</span> _expectedAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>里面涉及传参数有：</p>
+<ul>
+<li>signature: 用户采用permit方式进行部署，即链下采用eip712 方式对信息进行签名，链上验证有效性。</li>
+<li>salt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>code：<ul>
+<li>代理合约的初始化代码（creation code）。如果构造函数有参数，则初始化代码中已包含这些参数（若要实现多链地址统一，构造函数参数必须保持一致）。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>postCreateCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt-1"><a href="#2-requireContainsCaller-msg-sender-proxySalt-1" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-safeCreate2AndCall"><a href="#3-safeCreate2AndCall" class="headerlink" title="3. _safeCreate2AndCall"></a>3. <code>_safeCreate2AndCall</code></h3><ul>
+<li>计算 CREATE2 地址</li>
+<li>地址验证</li>
+<li>通过 CREATE2 部署合约</li>
+<li>调用初始化逻辑 ()</li>
+</ul>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> deterministicAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_expectedAddress <span class="token operator">!=</span> deterministicAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> deterministicAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> salt<span class="token punctuation">,</span> code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">(</span><span class="token builtin">bool</span> success<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> returnData<span class="token punctuation">)</span> <span class="token operator">=</span> proxyAddress<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>postCreateCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>success<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">CallFailed</span><span class="token punctuation">(</span>returnData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> proxyAddress<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="部署普通合约生成靓号"><a href="#部署普通合约生成靓号" class="headerlink" title="部署普通合约生成靓号"></a>部署普通合约生成靓号</h2><p>可以采用zora官方部署的<a href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83"><code>DeterministicDeployerAndCaller</code></a>合约。</p>
+<ul>
+<li>实操可看此交易</li>
+</ul>
+<p><a href="https://explorer.zora.energy/tx/0xc6052fda04d0a80c66700e1d774873f63f89f73198411371d894419b47b17c87">https://explorer.zora.energy/tx/0xc6052fda04d0a80c66700e1d774873f63f89f73198411371d894419b47b17c87</a></p>
+<h3 id="1-call-safeCreate2AndCall-or-permitSafeCreate2AndCall"><a href="#1-call-safeCreate2AndCall-or-permitSafeCreate2AndCall" class="headerlink" title="1. call safeCreate2AndCall or permitSafeCreate2AndCall"></a>1. call safeCreate2AndCall or permitSafeCreate2AndCall</h3><p>开发者通过调用<code>DeterministicDeployerAndCaller</code>合约的<code>safeCreate2AndCall</code>或者<code>permitSafeCreate2AndCall</code>函数进行部署。</p>
+<p>里面涉及传参数有：</p>
+<ul>
+<li>signature: 用户采用permit方式进行部署，即链下采用eip712 方式对信息进行签名，链上验证有效性。</li>
+<li>salt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>code：<ul>
+<li>合约的初始化代码（creation code）。如果构造函数有参数，则初始化代码中已包含这些参数（若要实现多链地址统一，构造函数参数必须保持一致）。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>postCreateCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt-2"><a href="#2-requireContainsCaller-msg-sender-proxySalt-2" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-safeCreate2AndCall-1"><a href="#3-safeCreate2AndCall-1" class="headerlink" title="3. _safeCreate2AndCall"></a>3. <code>_safeCreate2AndCall</code></h3><ul>
+<li>计算 CREATE2 地址</li>
+<li>地址验证</li>
+<li>通过 CREATE2 部署合约</li>
+<li>调用初始化逻辑</li>
+</ul>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> deterministicAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_expectedAddress <span class="token operator">!=</span> deterministicAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> deterministicAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> salt<span class="token punctuation">,</span> code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">(</span><span class="token builtin">bool</span> success<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> returnData<span class="token punctuation">)</span> <span class="token operator">=</span> proxyAddress<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>postCreateCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>success<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">CallFailed</span><span class="token punctuation">(</span>returnData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> proxyAddress<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 ]]></content>
       <categories>
         <category>EVM</category>

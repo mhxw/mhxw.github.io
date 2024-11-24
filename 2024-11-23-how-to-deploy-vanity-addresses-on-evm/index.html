@@ -22,23 +22,23 @@
     <meta name="description" content="本篇仅对普通合约(非代理合约进行)进行讲解。  简介以太坊的靓号地址是具有特定模式的钱包地址或合约地址，通常包含可识别的字符或以一系列零开头。这些地址可以增加唯一性和美观性，但生成它们需要特定工具以及对以太坊 CREATE2 操作码的了解。 本文将解释如何使用 create2crunch 工具部署靓号地址。这是一个基于 Rust 的程序，用于寻找能够在以太坊虚拟机（EVM）链上生成高效靓号地址的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)">
-<meta property="og:url" content="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-addresses-on-evm/index.html">
+<meta property="og:url" content="https://mhxw.github.io/2024-11-23-how-to-deploy-vanity-addresses-on-evm/index.html">
 <meta property="og:site_name" content="MHXW">
 <meta property="og:description" content="本篇仅对普通合约(非代理合约进行)进行讲解。  简介以太坊的靓号地址是具有特定模式的钱包地址或合约地址，通常包含可识别的字符或以一系列零开头。这些地址可以增加唯一性和美观性，但生成它们需要特定工具以及对以太坊 CREATE2 操作码的了解。 本文将解释如何使用 create2crunch 工具部署靓号地址。这是一个基于 Rust 的程序，用于寻找能够在以太坊虚拟机（EVM）链上生成高效靓号地址的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://mhxw.github.io/images/2024-11-24-01.png">
-<meta property="article:published_time" content="2024-11-24T12:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-24T04:46:49.417Z">
+<meta property="og:image" content="https://mhxw.github.io/images/2024-11-23-01.png">
+<meta property="article:published_time" content="2024-11-23T12:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T15:11:48.625Z">
 <meta property="article:author" content="美H向W">
 <meta property="article:tag" content="ethereum,solidity,smartcontract,hyperledger,blockchain,MHXW">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://mhxw.github.io/images/2024-11-24-01.png">
+<meta name="twitter:image" content="https://mhxw.github.io/images/2024-11-23-01.png">
 
 
-<link rel="canonical" href="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-addresses-on-evm/">
+<link rel="canonical" href="https://mhxw.github.io/2024-11-23-how-to-deploy-vanity-addresses-on-evm/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-addresses-on-evm/","path":"2024-11-24-how-to-deploy-vanity-addresses-on-evm/","title":"如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2024-11-23-how-to-deploy-vanity-addresses-on-evm/","path":"2024-11-23-how-to-deploy-vanity-addresses-on-evm/","title":"如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM) | MHXW</title>
@@ -141,7 +141,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-CREATE2%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">什么是 CREATE2？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE-create2crunch"><span class="nav-number">3.</span> <span class="nav-text">安装和配置 create2crunch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A41%EF%BC%9A%E5%85%8B%E9%9A%86%E4%BB%93%E5%BA%93"><span class="nav-number">3.1.</span> <span class="nav-text">步骤1：克隆仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A42%EF%BC%9A%E5%AE%89%E8%A3%85%E5%89%8D%E7%BD%AE%E4%BE%9D%E8%B5%96"><span class="nav-number">3.2.</span> <span class="nav-text">步骤2：安装前置依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A43%EF%BC%9A%E5%AE%9A%E4%B9%89%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0"><span class="nav-number">3.3.</span> <span class="nav-text">步骤3：定义关键参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A44%EF%BC%9A%E8%BF%90%E8%A1%8C-create2crunch"><span class="nav-number">3.4.</span> <span class="nav-text">步骤4：运行 create2crunch</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C"><span class="nav-number">4.</span> <span class="nav-text">验证结果</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-CREATE2%EF%BC%9F"><span class="nav-text">什么是 CREATE2？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E9%85%8D%E7%BD%AE-create2crunch"><span class="nav-text">安装和配置 create2crunch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A41%EF%BC%9A%E5%85%8B%E9%9A%86%E4%BB%93%E5%BA%93"><span class="nav-text">步骤1：克隆仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A42%EF%BC%9A%E5%AE%89%E8%A3%85%E5%89%8D%E7%BD%AE%E4%BE%9D%E8%B5%96"><span class="nav-text">步骤2：安装前置依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A43%EF%BC%9A%E5%AE%9A%E4%B9%89%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0"><span class="nav-text">步骤3：定义关键参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A44%EF%BC%9A%E8%BF%90%E8%A1%8C-create2crunch"><span class="nav-text">步骤4：运行 create2crunch</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C"><span class="nav-text">验证结果</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -154,7 +154,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -192,7 +192,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
-    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-addresses-on-evm/">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2024-11-23-how-to-deploy-vanity-addresses-on-evm/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -221,7 +221,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2024-11-24 12:00:00" itemprop="dateCreated datePublished" datetime="2024-11-24T12:00:00Z">2024-11-24</time>
+      <time title="Created: 2024-11-23 12:00:00" itemprop="dateCreated datePublished" datetime="2024-11-23T12:00:00Z">2024-11-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -268,6 +268,8 @@
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">curl</span> <span class="token parameter variable">--proto</span> <span class="token string">'=https'</span> <span class="token parameter variable">--tlsv1.2</span> <span class="token parameter variable">-sSf</span> https://sh.rustup.rs <span class="token operator">|</span> <span class="token function">sh</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>安装完成后，进入仓库目录并构建程序：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cargo</span> build <span class="token parameter variable">--release</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <h3 id="步骤3：定义关键参数"><a href="#步骤3：定义关键参数" class="headerlink" title="步骤3：定义关键参数"></a>步骤3：定义关键参数</h3><p>在运行程序前，需定义以下变量：</p>
 <ol>
 <li>Factory Address: The address of the factory or contract that will execute CREATE2. For example:<br>工厂地址：将执行 CREATE2 的工厂合约地址。例如：</li>
@@ -294,7 +296,7 @@
     t.Log(initCodeHash)
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/images/2024-11-24-01.png" alt="bytecode字段"></p>
+<p><img src="/images/2024-11-23-01.png" alt="bytecode字段"></p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">export</span> <span class="token assign-left variable">INIT_CODE_HASH</span><span class="token operator">=</span><span class="token string">"0xYourContractInitCodeHashHere"</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h3 id="步骤4：运行-create2crunch"><a href="#步骤4：运行-create2crunch" class="headerlink" title="步骤4：运行 create2crunch"></a>步骤4：运行 create2crunch</h3><p>使用上述参数运行程序：</p>
@@ -320,6 +322,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/" rel="next" title="如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide])">
+                  如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide]) <i class="fa fa-angle-right"></i>
+                </a>
             </div>
           </div>
     </footer>

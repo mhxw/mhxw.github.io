@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"},"duration":200},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在以太坊虚拟机（EVM）中，合约地址的生成基于部署者地址和交易数据的哈希，因此可以通过一些技巧生成具有特定特点的“靓号”地址。这种技术被广泛应用于个性化品牌展示、降低用户错误操作的可能性，甚至是提高项目的营销吸引力。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide])">
+<meta property="og:url" content="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="在以太坊虚拟机（EVM）中，合约地址的生成基于部署者地址和交易数据的哈希，因此可以通过一些技巧生成具有特定特点的“靓号”地址。这种技术被广泛应用于个性化品牌展示、降低用户错误操作的可能性，甚至是提高项目的营销吸引力。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mhxw.github.io/images/2024-11-24-01.png">
+<meta property="article:published_time" content="2024-11-24T21:00:00.000Z">
+<meta property="article:modified_time" content="2024-11-24T15:19:06.013Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="ethereum,solidity,smartcontract,hyperledger,blockchain,MHXW">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mhxw.github.io/images/2024-11-24-01.png">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/","path":"2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/","title":"如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide])"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide]) | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%93%E5%8F%B7%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90%E6%9C%BA%E5%88%B6"><span class="nav-text">靓号地址生成机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-UUPS-%E6%A8%A1%E5%BC%8F%E7%94%9F%E6%88%90%E9%9D%93%E5%8F%B7"><span class="nav-text">使用 UUPS 模式生成靓号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%B0%83%E7%94%A8safeCreate2AndUpgradeToAndCall%E5%87%BD%E6%95%B0"><span class="nav-text">1. 调用safeCreate2AndUpgradeToAndCall函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-requireContainsCaller-msg-sender-proxySalt"><span class="nav-text">2. _requireContainsCaller(msg.sender, proxySalt);</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-getOrCreateProxyShim"><span class="nav-text">3. _getOrCreateProxyShim();</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-bytes-memory-proxyCreationCode-proxyCreationCode-proxyCode"><span class="nav-text">4. bytes memory _proxyCreationCode &#x3D; proxyCreationCode(proxyCode);</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E9%80%9A%E8%BF%87create2%E6%96%B9%E5%BC%8F%E5%88%9B%E5%BB%BA%E4%BB%A3%E7%90%86%E5%90%88%E7%BA%A6%E5%9C%B0%E5%9D%80"><span class="nav-text">5. 通过create2方式创建代理合约地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%89%A7%E8%A1%8CupgradeToAndCall"><span class="nav-text">6. 执行upgradeToAndCall</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%80%8F%E6%98%8E%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E7%94%9F%E6%88%90%E9%9D%93%E5%8F%B7"><span class="nav-text">使用透明代理模式生成靓号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%B0%83%E7%94%A8safeCreate2AndCall%E5%87%BD%E6%95%B0"><span class="nav-text">1. 调用safeCreate2AndCall函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-requireContainsCaller-msg-sender-proxySalt-1"><span class="nav-text">2. _requireContainsCaller(msg.sender, proxySalt);</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-safeCreate2AndCall"><span class="nav-text">3. _safeCreate2AndCall</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E6%99%AE%E9%80%9A%E5%90%88%E7%BA%A6%E7%94%9F%E6%88%90%E9%9D%93%E5%8F%B7"><span class="nav-text">部署普通合约生成靓号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-call-safeCreate2AndCall-or-permitSafeCreate2AndCall"><span class="nav-text">1. call safeCreate2AndCall or permitSafeCreate2AndCall</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-requireContainsCaller-msg-sender-proxySalt-2"><span class="nav-text">2. _requireContainsCaller(msg.sender, proxySalt);</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-safeCreate2AndCall-1"><span class="nav-text">3. _safeCreate2AndCall</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2024-11-24-how-to-deploy-vanity-evm-addresses-comprehensive-guide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide]) | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何部署靓号 EVM 地址[全面指南] (How to Deploy Vanity EVM Addresses [Comprehensive Guide])
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2024-11-24 21:00:00" itemprop="dateCreated datePublished" datetime="2024-11-24T21:00:00Z">2024-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/EVM/" itemprop="url" rel="index"><span itemprop="name">EVM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在以太坊虚拟机（EVM）中，合约地址的生成基于部署者地址和交易数据的哈希，因此可以通过一些技巧生成具有特定特点的“靓号”地址。这种技术被广泛应用于个性化品牌展示、降低用户错误操作的可能性，甚至是提高项目的营销吸引力。</p>
+<span id="more"></span>
+
+<h2 id="靓号地址生成机制"><a href="#靓号地址生成机制" class="headerlink" title="靓号地址生成机制"></a>靓号地址生成机制</h2><p>   在 EVM 中，合约地址的生成取决于以下两种机制：</p>
+<ol>
+<li>普通部署：</li>
+</ol>
+<ul>
+<li>使用 CREATE 指令，生成的地址为：  <pre class="line-numbers language-code" data-language="code"><code class="language-code">keccak256(rlp([sender, nonce]))<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>sender：部署者地址</li>
+<li>nonce：部署者的交易计数</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>确定性部署：</li>
+</ol>
+<ul>
+<li>使用 CREATE2 指令，生成的地址为：  <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">keccak256<span class="token punctuation">(</span>0xff ++ sender ++ salt ++ keccak256<span class="token punctuation">(</span>bytecode<span class="token punctuation">))</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+<li>sender：部署者地址（工厂合约地址）</li>
+<li>salt：任意 32 字节数据，用于影响地址生成</li>
+<li>bytecode：合约的初始化字节码</li>
+</ul>
+<p>通过 <code>CREATE2</code> 的 <code>salt</code> 和 <code>bytecode</code>，我们可以更精细地控制合约地址。</p>
+<h2 id="使用-UUPS-模式生成靓号"><a href="#使用-UUPS-模式生成靓号" class="headerlink" title="使用 UUPS 模式生成靓号"></a>使用 UUPS 模式生成靓号</h2><blockquote>
+<p>zora之前使用<a target="_blank" rel="noopener" href="https://etherscan.deth.net/address/0xf68e8da655bedeb3cfbdae7871ca82d603523447">DeterministicUUPSProxyDeployer</a>合约进行UUPS部署，后来改成通过<a target="_blank" rel="noopener" href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83">DeterministicDeployerAndCaller</a>部署。<br>本小节将以 DeterministicUUPSProxyDeployer 为例进行讲解，而下一小节中，关于透明代理和普通合约代理的内容，将以 DeterministicDeployerAndCaller 为例进行说明。</p>
+</blockquote>
+<p>在以太坊中，通过 CREATE2 的确定性部署机制，可以为 UUPS 合约生成“靓号”地址。为此，可以借助 Zora 官方提供的 DeterministicUUPSProxyDeployer 合约实现高效部署。</p>
+<p>本节将结合 OpenZeppelin 的 UUPS 代理合约与 Zora 的 DeterministicUUPSProxyDeployer 合约，逐步讲解如何生成靓号地址。在操作前，请确保熟悉上述合约的代码逻辑。</p>
+<p>以openzeppelin 的uups代理合约为例，在部署代理合约时候，构造函数需要传入参数。构造函数的参数会拼接在合约初始化代码后面，这个后面会用到。</p>
+<ul>
+<li>DeterministicUUPSProxyDeployer</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/ourzora/zora-protocol/blob/748be1ab013b658924248af76dc39aafa4a2faf8/packages/shared-contracts/src/deployment/DeterministicUUPSProxyDeployer.sol">https://github.com/ourzora/zora-protocol/blob/748be1ab013b658924248af76dc39aafa4a2faf8/packages/shared-contracts/src/deployment/DeterministicUUPSProxyDeployer.sol</a></p>
+<ul>
+<li>UUPS</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/ERC1967/ERC1967Proxy.sol#L26">https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/ERC1967/ERC1967Proxy.sol#L26</a></p>
+<p>实操你可以查看此交易</p>
+<p><a target="_blank" rel="noopener" href="https://explorer.zora.energy/tx/0xbb5023241d778352ae5963c977382b8eeae91afc9ef0ca4c543b2e12a2fe4738">https://explorer.zora.energy/tx/0xbb5023241d778352ae5963c977382b8eeae91afc9ef0ca4c543b2e12a2fe4738</a><br><a target="_blank" rel="noopener" href="https://explorer.zora.energy/tx/0x9157f50c80a93ae135267644e6fd4ae9b5b558fce2f86557445fe0aeda535d09">https://explorer.zora.energy/tx/0x9157f50c80a93ae135267644e6fd4ae9b5b558fce2f86557445fe0aeda535d09</a></p>
+<p>以 <a target="_blank" rel="noopener" href="https://explorer.zora.energy/address/0x77777779acd6a96C0c57272112921A0b833c38fD?tab=contract">ZoraMintsManager</a> 的 UUPS 代理合约 为例，代理合约的构造函数如下：</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token builtin">address</span> _logic<span class="token punctuation">)</span> <span class="token function">ERC1967Proxy</span><span class="token punctuation">(</span>_logic<span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>该构造函数在部署时需要传入两个关键参数：</p>
+<ul>
+<li><code>_logic</code>：实现合约的地址。</li>
+</ul>
+<p>在 EVM 中，合约的构造函数参数会被拼接到初始化代码（<code>creation code</code>）的末尾，这一点对于生成靓号地址尤为重要。</p>
+<h3 id="1-调用safeCreate2AndUpgradeToAndCall函数"><a href="#1-调用safeCreate2AndUpgradeToAndCall函数" class="headerlink" title="1. 调用safeCreate2AndUpgradeToAndCall函数"></a>1. 调用safeCreate2AndUpgradeToAndCall函数</h3><p>开发者通过调用DeterministicUUPSProxyDeployer合约的safeCreate2AndUpgradeToAndCall函数进行部署。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Creates a contract using create2, and then calls an initialization function on it.</span>
+<span class="token comment">/// First 20 bytes of salt must match the msg.sender</span>
+<span class="token comment">/// @param proxySalt Salt to create the contract with</span>
+<span class="token comment">/// @param proxyCode contract creation code</span>
+<span class="token comment">/// @param initialImplementation address to upgrade to</span>
+<span class="token comment">/// @param postUpgradeCall what to call on the contract after upgrading</span>
+<span class="token comment">/// @param _expectedAddress expected address of the created contract</span>
+<span class="token keyword">function</span> <span class="token function">safeCreate2AndUpgradeToAndCall</span><span class="token punctuation">(</span>
+    <span class="token builtin">bytes32</span> proxySalt<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> proxyCode<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> initialImplementation<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postUpgradeCall<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> _expectedAddress
+<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">,</span> proxySalt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">_getOrCreateProxyShim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> _proxyCreationCode <span class="token operator">=</span> <span class="token function">proxyCreationCode</span><span class="token punctuation">(</span>proxyCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> proxySalt<span class="token punctuation">,</span> _proxyCreationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>proxyAddress <span class="token operator">!=</span> _expectedAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> proxyAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token function">UUPSUpgradeable</span><span class="token punctuation">(</span>proxyAddress<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">upgradeToAndCall</span><span class="token punctuation">(</span>initialImplementation<span class="token punctuation">,</span> postUpgradeCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>里面涉及传参数有：</p>
+<ul>
+<li>proxySalt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>proxyCode：<ul>
+<li>代理合约的初始化代码（creation code），不包含构造函数参数。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>initialImplementation：已经部署的实现合约地址。</li>
+<li>postUpgradeCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt"><a href="#2-requireContainsCaller-msg-sender-proxySalt" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-getOrCreateProxyShim"><a href="#3-getOrCreateProxyShim" class="headerlink" title="3. _getOrCreateProxyShim();"></a>3. <code>_getOrCreateProxyShim();</code></h3><p>这行代码通过 <code>CREATE2</code> 获取或创建一个 <code>ProxyShim</code> 合约。<code>ProxyShim</code> 是一个轻量级 UUPS 实现合约，用作代理合约的占位实现地址。在多链部署中，使用固定的 <code>ProxyShim</code> 地址可以确保代理地址一致，后续通过升级机制替换为实际实现合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_getOrCreateProxyShim</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span>ProxyShim proxyShim<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// check if initial implementation has been created</span>
+    <span class="token comment">// get create 2 address for initial implementation</span>
+    <span class="token builtin">address</span> _proxyShimAddress <span class="token operator">=</span> <span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_proxyShimAddress<span class="token punctuation">.</span>code<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        proxyShim <span class="token operator">=</span> <span class="token function">ProxyShim</span><span class="token punctuation">(</span>_proxyShimAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// create initial implementation at determinstic address</span>
+        proxyShim <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ProxyShim</span><span class="token punctuation">&#123;</span>salt<span class="token punctuation">:</span> INITIAL_IMPLEMENTATION_SALT<span class="token punctuation">&#125;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">contract</span> <span class="token class-name">ProxyShim</span> <span class="token keyword">is</span> UUPSUpgradeable <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> immutable canUpgrade<span class="token punctuation">;</span>
+
+    <span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// defaults to msg.sender being address(this)</span>
+        canUpgrade <span class="token operator">=</span> msg<span class="token punctuation">.</span>sender<span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">function</span> <span class="token function">_authorizeUpgrade</span><span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">view</span> override <span class="token punctuation">&#123;</span>
+        <span class="token keyword">require</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender <span class="token operator">==</span> canUpgrade<span class="token punctuation">,</span> <span class="token string">"not authorized"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="4-bytes-memory-proxyCreationCode-proxyCreationCode-proxyCode"><a href="#4-bytes-memory-proxyCreationCode-proxyCreationCode-proxyCode" class="headerlink" title="4. bytes memory _proxyCreationCode &#x3D; proxyCreationCode(proxyCode);"></a>4. bytes memory _proxyCreationCode &#x3D; proxyCreationCode(proxyCode);</h3><p>这行代码的作用是将代理合约的初始化代码（proxyCode）与其构造函数参数拼接，生成完整的合约部署代码的<code>creation bytecode</code>。</p>
+<blockquote>
+<p>如果代理合约是 OpenZeppelin 提供的标准 UUPS 代理合约，其构造函数的参数和初始化逻辑通常是这样的：<br>如果构造函数需要两个参数（逻辑合约地址和初始化数据），完整的构造函数调用数据（即 data 参数）通常通过 abi.encode 编码：<br>bytes memory data &#x3D; abi.encode(_logic, _data);</p>
+</blockquote>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Initialization code for the proxy, including the constructor args</span>
+<span class="token keyword">function</span> <span class="token function">proxyCreationCode</span><span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span> transparentProxyCode<span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span>transparentProxyCode<span class="token punctuation">,</span> <span class="token function">proxyConstructorArgs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">/// Constructor args when creating the proxy</span>
+<span class="token keyword">function</span> <span class="token function">proxyConstructorArgs</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">memory</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span><span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token builtin">bytes32</span> <span class="token keyword">constant</span> INITIAL_IMPLEMENTATION_SALT <span class="token operator">=</span> <span class="token builtin">bytes32</span><span class="token punctuation">(</span><span class="token number">0x0000000000000000000000000000000000000000000000000000000000000000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/// Address of the proxy shim contract that is used to upgrade the factory proxy</span>
+<span class="token keyword">function</span> <span class="token function">proxyShimAddress</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>INITIAL_IMPLEMENTATION_SALT<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span><span class="token function">type</span><span class="token punctuation">(</span>ProxyShim<span class="token punctuation">)</span><span class="token punctuation">.</span>creationCode<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="5-通过create2方式创建代理合约地址"><a href="#5-通过create2方式创建代理合约地址" class="headerlink" title="5. 通过create2方式创建代理合约地址"></a>5. 通过create2方式创建代理合约地址</h3><p>这段代码通过 CREATE2 指令部署代理合约，随后验证生成的合约地址是否与预期地址 _expectedAddress 一致。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">// create the proxy</span>
+<span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> proxySalt<span class="token punctuation">,</span> _proxyCreationCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>proxyAddress <span class="token operator">!=</span> _expectedAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> proxyAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="6-执行upgradeToAndCall"><a href="#6-执行upgradeToAndCall" class="headerlink" title="6. 执行upgradeToAndCall"></a>6. 执行upgradeToAndCall</h3><p>这段代码的目的是设置代理合约的实现合约地址，并通过调用逻辑合约中的初始化函数完成必要的初始化操作。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token function">UUPSUpgradeable</span><span class="token punctuation">(</span>proxyAddress<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">upgradeToAndCall</span><span class="token punctuation">(</span>initialImplementation<span class="token punctuation">,</span> postUpgradeCall<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="/images/2024-11-24-01.png" alt="实操你可以查看此交易"></p>
+<h2 id="使用透明代理模式生成靓号"><a href="#使用透明代理模式生成靓号" class="headerlink" title="使用透明代理模式生成靓号"></a>使用透明代理模式生成靓号</h2><p>可以采用zora官方部署的<a target="_blank" rel="noopener" href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83"><code>DeterministicDeployerAndCaller</code></a>合约。</p>
+<blockquote>
+<p>DeterministicDeployerAndCaller 合约支持UUPS、透明代理、普通合约等其他类型合约部署。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/transparent/TransparentUpgradeableProxy.sol#L79">https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.2/contracts/proxy/transparent/TransparentUpgradeableProxy.sol#L79</a></p>
+<h3 id="1-调用safeCreate2AndCall函数"><a href="#1-调用safeCreate2AndCall函数" class="headerlink" title="1. 调用safeCreate2AndCall函数"></a>1. 调用safeCreate2AndCall函数</h3><p>开发者通过调用<code>DeterministicDeployerAndCaller</code>合约的<code>safeCreate2AndCall</code>或者<code>permitSafeCreate2AndCall</code>函数进行部署。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// Creates a contract using create2, and then calls an initialization function on it.</span>
+<span class="token comment">/// First 20 bytes of salt must match the msg.sender</span>
+<span class="token comment">/// @param salt Salt to create the contract with</span>
+<span class="token comment">/// @param code contract creation code</span>
+<span class="token comment">/// @param postCreateCall what to call on the contract after deploying it</span>
+<span class="token comment">/// @param _expectedAddress expected address of the created contract</span>
+<span class="token keyword">function</span> <span class="token function">safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">,</span> _expectedAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">permitSafeCreate2AndCall</span><span class="token punctuation">(</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> signature<span class="token punctuation">,</span>
+    <span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> _expectedAddress
+<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token keyword">payable</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> signer <span class="token operator">=</span> ECDSA<span class="token punctuation">.</span><span class="token function">recover</span><span class="token punctuation">(</span><span class="token function">hashDigest</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">)</span><span class="token punctuation">,</span> signature<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> code<span class="token punctuation">,</span> postCreateCall<span class="token punctuation">,</span> _expectedAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>里面涉及传参数有：</p>
+<ul>
+<li>signature: 用户采用permit方式进行部署，即链下采用eip712 方式对信息进行签名，链上验证有效性。</li>
+<li>salt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>code：<ul>
+<li>代理合约的初始化代码（creation code）。如果构造函数有参数，则初始化代码中已包含这些参数（若要实现多链地址统一，构造函数参数必须保持一致）。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>postCreateCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt-1"><a href="#2-requireContainsCaller-msg-sender-proxySalt-1" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-safeCreate2AndCall"><a href="#3-safeCreate2AndCall" class="headerlink" title="3. _safeCreate2AndCall"></a>3. <code>_safeCreate2AndCall</code></h3><ul>
+<li>计算 CREATE2 地址</li>
+<li>地址验证</li>
+<li>通过 CREATE2 部署合约</li>
+<li>调用初始化逻辑 ()</li>
+</ul>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> deterministicAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_expectedAddress <span class="token operator">!=</span> deterministicAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> deterministicAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> salt<span class="token punctuation">,</span> code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">(</span><span class="token builtin">bool</span> success<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> returnData<span class="token punctuation">)</span> <span class="token operator">=</span> proxyAddress<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>postCreateCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>success<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">CallFailed</span><span class="token punctuation">(</span>returnData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> proxyAddress<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="部署普通合约生成靓号"><a href="#部署普通合约生成靓号" class="headerlink" title="部署普通合约生成靓号"></a>部署普通合约生成靓号</h2><p>可以采用zora官方部署的<a target="_blank" rel="noopener" href="https://etherscan.deth.net/address/0x813f62e6b808aac8c36868898f84a3e944378d83"><code>DeterministicDeployerAndCaller</code></a>合约。</p>
+<ul>
+<li>实操可看此交易</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://explorer.zora.energy/tx/0xc6052fda04d0a80c66700e1d774873f63f89f73198411371d894419b47b17c87">https://explorer.zora.energy/tx/0xc6052fda04d0a80c66700e1d774873f63f89f73198411371d894419b47b17c87</a></p>
+<h3 id="1-call-safeCreate2AndCall-or-permitSafeCreate2AndCall"><a href="#1-call-safeCreate2AndCall-or-permitSafeCreate2AndCall" class="headerlink" title="1. call safeCreate2AndCall or permitSafeCreate2AndCall"></a>1. call safeCreate2AndCall or permitSafeCreate2AndCall</h3><p>开发者通过调用<code>DeterministicDeployerAndCaller</code>合约的<code>safeCreate2AndCall</code>或者<code>permitSafeCreate2AndCall</code>函数进行部署。</p>
+<p>里面涉及传参数有：</p>
+<ul>
+<li>signature: 用户采用permit方式进行部署，即链下采用eip712 方式对信息进行签名，链上验证有效性。</li>
+<li>salt：<ul>
+<li>CREATE2 的盐值，用于影响合约地址。</li>
+<li>需提前通过工具生成合适的盐值以匹配靓号条件。</li>
+</ul>
+</li>
+<li>code：<ul>
+<li>合约的初始化代码（creation code）。如果构造函数有参数，则初始化代码中已包含这些参数（若要实现多链地址统一，构造函数参数必须保持一致）。</li>
+<li>这是代理的核心逻辑字节码，通常为编译后的代理合约代码</li>
+</ul>
+</li>
+<li>postCreateCall：部署代理合约后需要进行更新实现合约地址以及初始化的数据。</li>
+<li>_expectedAddress：开发者期望的代理合约地址。</li>
+</ul>
+<h3 id="2-requireContainsCaller-msg-sender-proxySalt-2"><a href="#2-requireContainsCaller-msg-sender-proxySalt-2" class="headerlink" title="2. _requireContainsCaller(msg.sender, proxySalt);"></a>2. <code>_requireContainsCaller(msg.sender, proxySalt);</code></h3><p>这行代码的逻辑是要求 proxySalt 的前 20 字节必须包含调用者（<code>msg.sender</code>）的地址。这样可以确保部署时的 <code>proxySalt</code> 和调用者绑定，防止其他人冒用该 <code>proxySalt</code> 来生成合约。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_requireContainsCaller</span><span class="token punctuation">(</span><span class="token builtin">address</span> signer<span class="token punctuation">,</span> <span class="token builtin">bytes32</span> salt<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">pure</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// prevent contract submissions from being stolen from tx.pool by requiring</span>
+    <span class="token comment">// that the first 20 bytes of the submitted salt match msg.sender.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">bytes20</span><span class="token punctuation">(</span>salt<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> signer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">InvalidSalt</span><span class="token punctuation">(</span>signer<span class="token punctuation">,</span> salt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="3-safeCreate2AndCall-1"><a href="#3-safeCreate2AndCall-1" class="headerlink" title="3. _safeCreate2AndCall"></a>3. <code>_safeCreate2AndCall</code></h3><ul>
+<li>计算 CREATE2 地址</li>
+<li>地址验证</li>
+<li>通过 CREATE2 部署合约</li>
+<li>调用初始化逻辑</li>
+</ul>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_safeCreate2AndCall</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> salt<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> code<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> postCreateCall<span class="token punctuation">,</span> <span class="token builtin">address</span> _expectedAddress<span class="token punctuation">)</span> <span class="token keyword">private</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">address</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> deterministicAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">computeAddress</span><span class="token punctuation">(</span>salt<span class="token punctuation">,</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>code<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_expectedAddress <span class="token operator">!=</span> deterministicAddress<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">FactoryProxyAddressMismatch</span><span class="token punctuation">(</span>_expectedAddress<span class="token punctuation">,</span> deterministicAddress<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// create the proxy</span>
+    <span class="token builtin">address</span> proxyAddress <span class="token operator">=</span> Create2<span class="token punctuation">.</span><span class="token function">deploy</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> salt<span class="token punctuation">,</span> code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">(</span><span class="token builtin">bool</span> success<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">memory</span> returnData<span class="token punctuation">)</span> <span class="token operator">=</span> proxyAddress<span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>postCreateCall<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>success<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">revert</span> <span class="token function">CallFailed</span><span class="token punctuation">(</span>returnData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">return</span> proxyAddress<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024-11-23-how-to-deploy-vanity-addresses-on-evm/" rel="prev" title="如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)">
+                  <i class="fa fa-angle-left"></i> 如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
