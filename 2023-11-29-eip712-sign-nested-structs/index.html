@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"},"duration":200},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇文章会给大家介绍如何对嵌套结构体进行签名（EIP712 TypedData Encoding With Nested Array of Structs）。本文案例是结构体中嵌套其他结构体数组，与结构体中嵌套其他结构体处理方式一样。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?)">
+<meta property="og:url" content="https://mhxw.github.io/2023-11-29-eip712-sign-nested-structs/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="本篇文章会给大家介绍如何对嵌套结构体进行签名（EIP712 TypedData Encoding With Nested Array of Structs）。本文案例是结构体中嵌套其他结构体数组，与结构体中嵌套其他结构体处理方式一样。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-29T12:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-06T02:07:50.521Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="EIP712">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2023-11-29-eip712-sign-nested-structs/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2023-11-29-eip712-sign-nested-structs/","path":"2023-11-29-eip712-sign-nested-structs/","title":"如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?) | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2023-11-29-eip712-sign-nested-structs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?) | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-11-29 12:00:00" itemprop="dateCreated datePublished" datetime="2023-11-29T12:00:00Z">2023-11-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/EVM/" itemprop="url" rel="index"><span itemprop="name">EVM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本篇文章会给大家介绍如何对嵌套结构体进行签名（EIP712 TypedData Encoding With Nested Array of Structs）。本文案例是结构体中嵌套其他结构体数组，与结构体中嵌套其他结构体处理方式一样。</p>
+<span id="more"></span>
+
+<p>如果你对EIP712相关概念和知识了解不多，可以先阅读下面这篇文章。</p>
+<p><a target="_blank" rel="noopener" href="https://mirror.xyz/xyyme.eth/cJX3zqiiUg2dxB1nmbXbDcQ1DSdajHP5iNgBc6wEZz4">https://mirror.xyz/xyyme.eth/cJX3zqiiUg2dxB1nmbXbDcQ1DSdajHP5iNgBc6wEZz4</a></p>
+<p>在某个项目中，需要将下面代码块中的<code>StrategyRequest</code> 结构体进行EIP712签名，不过在测试中，发现和使用ethers v6 生成的structHash 不一致，最后是如何排查解决的呢？</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">enum</span> <span class="token class-name">OptionType</span> <span class="token punctuation">&#123;</span>
+    LONG_CALL<span class="token punctuation">,</span>
+    LONG_PUT<span class="token punctuation">,</span>
+    SHORT_CALL<span class="token punctuation">,</span>
+    SHORT_PUT
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">struct</span> <span class="token class-name">Option</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">uint256</span> positionId<span class="token punctuation">;</span>
+    <span class="token comment">// underlying asset address</span>
+    <span class="token builtin">address</span> underlying<span class="token punctuation">;</span>
+    <span class="token comment">// option strike price (with 18 decimals)</span>
+    <span class="token builtin">uint256</span> strikePrice<span class="token punctuation">;</span>
+    <span class="token builtin">int256</span> premium<span class="token punctuation">;</span>
+    <span class="token comment">// option expiry timestamp</span>
+    <span class="token builtin">uint256</span> expiryTime<span class="token punctuation">;</span>
+    <span class="token comment">// order size</span>
+    <span class="token builtin">uint256</span> size<span class="token punctuation">;</span>
+    <span class="token comment">// option type</span>
+    OptionType optionType<span class="token punctuation">;</span>
+    <span class="token builtin">bool</span> isActive<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">struct</span> <span class="token class-name">Future</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">uint256</span> positionId<span class="token punctuation">;</span>
+    <span class="token comment">// underlying asset address</span>
+    <span class="token builtin">address</span> underlying<span class="token punctuation">;</span>
+    <span class="token comment">// (with 18 decimals)</span>
+    <span class="token builtin">uint256</span> entryPrice<span class="token punctuation">;</span>
+    <span class="token comment">// future expiry timestamp</span>
+    <span class="token builtin">uint256</span> expiryTime<span class="token punctuation">;</span>
+    <span class="token comment">// order size</span>
+    <span class="token builtin">uint256</span> size<span class="token punctuation">;</span>
+    <span class="token builtin">bool</span> isLong<span class="token punctuation">;</span>
+    <span class="token builtin">bool</span> isActive<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">struct</span> <span class="token class-name">StrategyRequest</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> admin<span class="token punctuation">;</span>
+    <span class="token builtin">uint256</span> timestamp<span class="token punctuation">;</span>
+    <span class="token builtin">uint256</span> mergeId<span class="token punctuation">;</span>
+    CollateralInfo<span class="token punctuation">[</span><span class="token punctuation">]</span> collaterals<span class="token punctuation">;</span>
+    Option<span class="token punctuation">[</span><span class="token punctuation">]</span> option<span class="token punctuation">;</span>
+    Future<span class="token punctuation">[</span><span class="token punctuation">]</span> future<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>一、首先查看结构体typehash是否正确。由于该结构体是多层嵌套不同结构体，按照EIP712标准，当struct 里面还有 struct 的情况，<strong>内部struct 的签名对象类型哈希中的结构体对象名称</strong>需要按照字母从a到z拼接；因此StrategyRequest结构体中的内部结构体排序之后为：1：CollateralInfo，2：Future，3：Option； 代码如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F;keccak256(&quot;StrategyRequest(address admin,uint256 timestamp,uint256 mergeId,CollateralInfo[] collaterals,Option[] option,Future[] future)CollateralInfo(address collateralToken,uint256 collateralAmount)Future(uint256 positionId,address underlying,uint256 entryPrice,uint256 expiryTime,uint256 size,bool isLong,bool isActive)Option(uint256 positionId,address underlying,uint256 strikePrice,int256 premium,uint256 expiryTime,uint256 size,uint256 optionType,bool isActive)&quot;);
+bytes32 public constant STRATEGY_REQUEST_TYPE_HASH &#x3D;
+        0xc9571297085db7b4ed482bfb5dc48ceb0aa85911a4dd114186601baab392814c;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>二、生成其他结构体的typehash</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">//keccak256("CollateralInfo(address collateralToken,uint256 collateralAmount)");</span>
+<span class="token builtin">bytes32</span> <span class="token keyword">public</span> <span class="token keyword">constant</span> COLLATERAL_INFO_TYPE_HASH <span class="token operator">=</span>
+    <span class="token number">0x9ad6f6e9b22cfe4c61d51d75600afaaae0fe0f7dbc24f035d03f68b7f87920fa</span><span class="token punctuation">;</span>
+
+<span class="token comment">//keccak256("Future(uint256 positionId,address underlying,uint256 entryPrice,uint256 expiryTime,uint256 size,bool isLong,bool isActive)");</span>
+<span class="token builtin">bytes32</span> <span class="token keyword">public</span> <span class="token keyword">constant</span> FUTURE_TYPE_HASH <span class="token operator">=</span> <span class="token number">0xcdff66689589cd15845093f3be135b778815fc2b8dfa35ff5112e645191afe86</span><span class="token punctuation">;</span>
+
+<span class="token comment">//keccak256("Option(uint256 positionId,address underlying,uint256 strikePrice,int256 premium,uint256 expiryTime,uint256 size,uint256 optionType,bool isActive)");</span>
+<span class="token builtin">bytes32</span> <span class="token keyword">public</span> <span class="token keyword">constant</span> OPTION_TYPE_HASH <span class="token operator">=</span> <span class="token number">0xbc63504838568be333400315a4bfe079d052fe27fe59b4bdac11192ccbca3e47</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>三、结构体hash</p>
+<p>在一个结构体中里面没有其他结构体情况下，structHash生成采用以下方式：</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">struct</span> <span class="token class-name">StrategyRequest</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">address</span> admin<span class="token punctuation">;</span>
+    <span class="token builtin">uint256</span> timestamp<span class="token punctuation">;</span>
+    <span class="token builtin">uint256</span> mergeId<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">_structHash</span><span class="token punctuation">(</span>StrategyRequest <span class="token keyword">memory</span> strategy<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">pure</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">bytes32</span> structHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>
+        abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+            Constants<span class="token punctuation">.</span>STRATEGY_REQUEST_TYPE_HASH<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>admin<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>timestamp<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>mergeId
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> structHash<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在一个结构体中里面有其他结构体情况下，structHash生成采用以下方式：</p>
+<p>1、首先把其他结构体的每个字段进行整体abi.encode之后进行keccak256</p>
+<p>2、如果涉及内部字段是数组结构体参数，需要先实现第1步，然后将所有的keccak256 hash 进行abi.encode 之后再进行keccak256</p>
+<p>3、将keccak256后的变量作为参数放置到structHash 中的abi.encode中</p>
+<p>4、最后再进行keccak256之后即可生成structHash</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">function</span> <span class="token function">_structHash</span><span class="token punctuation">(</span>StrategyTypes<span class="token punctuation">.</span>StrategyRequest <span class="token keyword">memory</span> strategy<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">pure</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">bytes32</span> structHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>
+        abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+            Constants<span class="token punctuation">.</span>STRATEGY_REQUEST_TYPE_HASH<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>admin<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>timestamp<span class="token punctuation">,</span>
+            strategy<span class="token punctuation">.</span>mergeId<span class="token punctuation">,</span>
+            <span class="token function">_hashCollateral</span><span class="token punctuation">(</span>strategy<span class="token punctuation">.</span>collaterals<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token function">_hashOption</span><span class="token punctuation">(</span>strategy<span class="token punctuation">.</span>option<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token function">_hashFuture</span><span class="token punctuation">(</span>strategy<span class="token punctuation">.</span>future<span class="token punctuation">)</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> structHash<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+
+<span class="token keyword">function</span> <span class="token function">_hashStrategy</span><span class="token punctuation">(</span>StrategyTypes<span class="token punctuation">.</span>StrategyRequest <span class="token keyword">memory</span> strategy<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">bytes32</span> structHash <span class="token operator">=</span> <span class="token function">_structHash</span><span class="token punctuation">(</span>strategy<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token function">_hashTypedDataV4</span><span class="token punctuation">(</span>structHash<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">_hashCollateral</span><span class="token punctuation">(</span>StrategyTypes<span class="token punctuation">.</span>CollateralInfo<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> collaterals<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">pure</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">uint256</span> len <span class="token operator">=</span> collaterals<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token builtin">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> collateralsHashes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">(</span>len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token builtin">uint256</span> i<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> len<span class="token punctuation">;</span> <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        collateralsHashes<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>Constants<span class="token punctuation">.</span>COLLATERAL_INFO_TYPE_HASH<span class="token punctuation">,</span> collaterals<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unchecked <span class="token punctuation">&#123;</span>
+            <span class="token operator">++</span>i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token builtin">bytes32</span> collateralsHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span>collateralsHashes<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> collateralsHash<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">_hashOption</span><span class="token punctuation">(</span>StrategyTypes<span class="token punctuation">.</span>Option<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> options<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">pure</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">uint256</span> len <span class="token operator">=</span> options<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token builtin">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> optionsHashes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">(</span>len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token builtin">uint256</span> i<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> len<span class="token punctuation">;</span> <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        optionsHashes<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>
+            abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+                Constants<span class="token punctuation">.</span>OPTION_TYPE_HASH<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>positionId<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>underlying<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>strikePrice<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>premium<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>expiryTime<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>size<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>optionType<span class="token punctuation">,</span>
+                options<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>isActive
+            <span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unchecked <span class="token punctuation">&#123;</span>
+            <span class="token operator">++</span>i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token builtin">bytes32</span> optionsHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span>optionsHashes<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> optionsHash<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">function</span> <span class="token function">_hashFuture</span><span class="token punctuation">(</span>StrategyTypes<span class="token punctuation">.</span>Future<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> futures<span class="token punctuation">)</span> <span class="token keyword">internal</span> <span class="token keyword">pure</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token builtin">uint256</span> len <span class="token operator">=</span> futures<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token builtin">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token keyword">memory</span> futuresHashes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">bytes32</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">(</span>len<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token builtin">uint256</span> i<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> len<span class="token punctuation">;</span> <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        futuresHashes<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>
+            abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+                Constants<span class="token punctuation">.</span>FUTURE_TYPE_HASH<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>positionId<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>underlying<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>entryPrice<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>expiryTime<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>size<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>isLong<span class="token punctuation">,</span>
+                futures<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>isActive
+            <span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unchecked <span class="token punctuation">&#123;</span>
+            <span class="token operator">++</span>i<span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token comment">// 这里使用abi.encodePacked和 abi.encode都可以，因为里面参数为bytes32数组，打包之后效果一样</span>
+    <span class="token builtin">bytes32</span> futuresHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span>futuresHashes<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> futuresHash<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>四、使用ethers输出日志和链上结果比较</p>
+<pre class="line-numbers language-typescript" data-language="typescript"><code class="language-typescript"><span class="token keyword">const</span> domain <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+  name<span class="token operator">:</span> <span class="token string">"XXX Protocol"</span><span class="token punctuation">,</span>
+  version<span class="token operator">:</span> <span class="token string">"1"</span><span class="token punctuation">,</span>
+  chainId<span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  verifyingContract<span class="token operator">:</span> <span class="token string">"0x1f9090aae28b8a3dceadf281b0f12828e676c326"</span><span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> types <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+  StrategyRequest<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"admin"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"address"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"timestamp"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"mergeId"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"collaterals"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"CollateralInfo[]"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"option"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"Option[]"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"future"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"Future[]"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  CollateralInfo<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"collateralToken"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"address"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"collateralAmount"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  Future<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"positionId"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"underlying"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"address"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"entryPrice"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"expiryTime"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"size"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"isLong"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"bool"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"isActive"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"bool"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  Option<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"positionId"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"underlying"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"address"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"strikePrice"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"premium"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"int256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"expiryTime"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"size"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"optionType"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"uint256"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span> name<span class="token operator">:</span> <span class="token string">"isActive"</span><span class="token punctuation">,</span> type<span class="token operator">:</span> <span class="token string">"bool"</span> <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> data <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+  admin<span class="token operator">:</span> <span class="token string">"0x45ee97cD5f227EdC94376A71a094F1D05ad0d151"</span><span class="token punctuation">,</span>
+  timestamp<span class="token operator">:</span> <span class="token number">1701092243</span><span class="token punctuation">,</span>
+  mergeId<span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+  collaterals<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+      collateralToken<span class="token operator">:</span> <span class="token string">"0x6495ce3e8808d7f4edf7e6e61e97099473b7a962"</span><span class="token punctuation">,</span>
+      collateralAmount<span class="token operator">:</span> <span class="token string">"8"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#123;</span>
+      collateralToken<span class="token operator">:</span> <span class="token string">"0x6495ce3e8808d7f4edf7e6e61e97099473b7a962"</span><span class="token punctuation">,</span>
+      collateralAmount<span class="token operator">:</span> <span class="token string">"8"</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  future<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+      positionId<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      underlying<span class="token operator">:</span> <span class="token string">"0x650c92218306ef82c9ebdb5297ff2288f05c24a8"</span><span class="token punctuation">,</span>
+      entryPrice<span class="token operator">:</span> <span class="token string">"19200000000000000000000"</span><span class="token punctuation">,</span>
+      expiryTime<span class="token operator">:</span> <span class="token string">"1703836800"</span><span class="token punctuation">,</span>
+      size<span class="token operator">:</span> <span class="token string">"2000000000000000000"</span><span class="token punctuation">,</span>
+      isLong<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+      isActive<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  option<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">&#123;</span>
+      positionId<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      underlying<span class="token operator">:</span> <span class="token string">"0x650c92218306ef82c9ebdb5297ff2288f05c24a8"</span><span class="token punctuation">,</span>
+      strikePrice<span class="token operator">:</span> <span class="token string">"19200000000000000000000"</span><span class="token punctuation">,</span>
+      premium<span class="token operator">:</span> <span class="token string">"44000000000000000000"</span><span class="token punctuation">,</span>
+      expiryTime<span class="token operator">:</span> <span class="token string">"1703836800"</span><span class="token punctuation">,</span>
+      size<span class="token operator">:</span> <span class="token string">"2000000000000000000"</span><span class="token punctuation">,</span>
+      optionType<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      isActive<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">let</span> strategyManagerAddr <span class="token operator">=</span> config<span class="token punctuation">[</span>network<span class="token punctuation">.</span>name<span class="token punctuation">]</span><span class="token punctuation">.</span>strategyManager<span class="token punctuation">;</span>
+<span class="token keyword">const</span> eip712FacetInterface <span class="token operator">=</span> <span class="token keyword">await</span> ethers<span class="token punctuation">.</span><span class="token function">getContractAt</span><span class="token punctuation">(</span><span class="token string">"EIP712Facet"</span><span class="token punctuation">,</span> strategyManagerAddr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"hashDomain:\t"</span><span class="token punctuation">,</span> ethers<span class="token punctuation">.</span>TypedDataEncoder<span class="token punctuation">.</span><span class="token function">hashDomain</span><span class="token punctuation">(</span>domain<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// let structHash = await eip712FacetInterface.structHash(data);</span>
+<span class="token comment">// console.log("structHash1:\t", structHash.toString());</span>
+
+<span class="token keyword">const</span> hashStruct <span class="token operator">=</span> ethers<span class="token punctuation">.</span>TypedDataEncoder<span class="token punctuation">.</span><span class="token function">hashStruct</span><span class="token punctuation">(</span><span class="token string">"StrategyRequest"</span><span class="token punctuation">,</span> types<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"structHash2:\t"</span><span class="token punctuation">,</span> hashStruct<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// let result = await eip712FacetInterface.hashStrategy(data);</span>
+<span class="token comment">// console.log("typeDataHash1:\t", result.toString());</span>
+
+<span class="token keyword">const</span> typeDataHash <span class="token operator">=</span> ethers<span class="token punctuation">.</span>TypedDataEncoder<span class="token punctuation">.</span><span class="token function">hash</span><span class="token punctuation">(</span>domain<span class="token punctuation">,</span> types<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"typeDataHash2:\t"</span><span class="token punctuation">,</span> typeDataHash<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>参考链接</p>
+<p><a target="_blank" rel="noopener" href="https://eips.ethereum.org/EIPS/eip-712">https://eips.ethereum.org/EIPS/eip-712</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/EIP712/" rel="tag"># EIP712</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023-08-04-gnosis-safe-v1.3.0/" rel="prev" title="Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0)">
+                  <i class="fa fa-angle-left"></i> Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024-11-23-how-to-deploy-vanity-addresses-on-evm/" rel="next" title="如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM)">
+                  如何在EVM上部署靓号地址 (How to Deploy Vanity Addresses on EVM) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

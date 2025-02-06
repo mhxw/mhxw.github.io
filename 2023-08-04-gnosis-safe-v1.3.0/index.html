@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-logo.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"mhxw.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":false,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"},"duration":200},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Gnosis Safe 是一款链上多签钱包解决方案，主要逻辑是组合单个或多个用户（用户地址可以是EOA，也可以是合约账户）对同一笔交易签名，签名验证成功后，执行相关交易。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0)">
+<meta property="og:url" content="https://mhxw.github.io/2023-08-04-gnosis-safe-v1.3.0/index.html">
+<meta property="og:site_name" content="MHXW">
+<meta property="og:description" content="Gnosis Safe 是一款链上多签钱包解决方案，主要逻辑是组合单个或多个用户（用户地址可以是EOA，也可以是合约账户）对同一笔交易签名，签名验证成功后，执行相关交易。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mhxw.github.io/images/2023-08-04-01.png">
+<meta property="og:image" content="https://mhxw.github.io/images/2023-08-04-02.png">
+<meta property="article:published_time" content="2023-08-04T21:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-06T02:07:50.516Z">
+<meta property="article:author" content="美H向W">
+<meta property="article:tag" content="EIP712">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mhxw.github.io/images/2023-08-04-01.png">
+
+
+<link rel="canonical" href="https://mhxw.github.io/2023-08-04-gnosis-safe-v1.3.0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-cn","comments":true,"permalink":"https://mhxw.github.io/2023-08-04-gnosis-safe-v1.3.0/","path":"2023-08-04-gnosis-safe-v1.3.0/","title":"Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0) | MHXW</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">MHXW</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Trust Create Value</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#EIP-712"><span class="nav-text">EIP 712</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E7%9A%84%E4%B8%89%E7%A7%8D%E7%B1%BB%E5%9E%8B"><span class="nav-text">签名的三种类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#EOA%E7%9A%84ECDSA%E7%AD%BE%E5%90%8D"><span class="nav-text">EOA的ECDSA签名</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81"><span class="nav-text">签名验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%88%E7%BA%A6%E8%B4%A6%E6%88%B7%E7%AD%BE%E5%90%8D"><span class="nav-text">合约账户签名</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81-1"><span class="nav-text">签名验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E7%AD%BE%E5%90%8D%EF%BC%88Pre-validated-signatures%EF%BC%89"><span class="nav-text">预签名（Pre-validated signatures）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81-2"><span class="nav-text">签名验证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EOA-%E9%93%BE%E4%B8%8B%E6%9E%84%E9%80%A0%E7%AD%BE%E5%90%8D"><span class="nav-text">EOA 链下构造签名</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90safeTxHash"><span class="nav-text">生成safeTxHash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E8%A3%85%E6%8B%BC%E6%8E%A5%E7%AD%BE%E5%90%8D"><span class="nav-text">组装拼接签名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Safe%E5%90%88%E7%BA%A6%E7%AD%BE%E5%90%8D%E6%B6%88%E6%81%AF"><span class="nav-text">Safe合约签名消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">美H向W</p>
+  <div class="site-description" itemprop="description">Trust Create Value</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="https://mhxw.github.io/2023-08-04-gnosis-safe-v1.3.0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="美H向W">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MHXW">
+      <meta itemprop="description" content="Trust Create Value">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0) | MHXW">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Gnosis Safe v1.3.0 多签原理 (The Multi-Signature Principle Behind Gnosis Safe v1.3.0)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-08-04 21:00:00" itemprop="dateCreated datePublished" datetime="2023-08-04T21:00:00Z">2023-08-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/EVM/" itemprop="url" rel="index"><span itemprop="name">EVM</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Gnosis Safe 是一款链上多签钱包解决方案，主要逻辑是组合单个或多个用户（用户地址可以是EOA，也可以是合约账户）对同一笔交易签名，签名验证成功后，执行相关交易。</p>
+<span id="more"></span>
+
+<p>我们基于Safe 合约v1.3.0 进行分析。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/safe-global/safe-smart-account/tree/v1.3.0/contracts">https://github.com/safe-global/safe-smart-account/tree/v1.3.0/contracts</a></p>
+<p><a target="_blank" rel="noopener" href="https://dashboard.tenderly.co/tx/mainnet/0xefbe3ff4c387f679980e6536cebf75b16081da954c77c62d019325e596bdf7f1/debugger?trace=0.0.1.0.3">https://dashboard.tenderly.co/tx/mainnet/0xefbe3ff4c387f679980e6536cebf75b16081da954c77c62d019325e596bdf7f1/debugger?trace=0.0.1.0.3</a></p>
+<h2 id="EIP-712"><a href="#EIP-712" class="headerlink" title="EIP 712"></a>EIP 712</h2><p>签名数据遵循EIP712 标准，EIP712 定义了4个字段，分别为 <code>hashStruct</code> 、<code>encodeType</code>、<code>encodeData</code>、<code>domainSeparator</code>。</p>
+<p><img src="/images/2023-08-04-01.png" alt="EIP 712 结构图"></p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity">typeHash<span class="token operator">=</span><span class="token function">keccak256</span><span class="token punctuation">(</span>Struct<span class="token punctuation">)</span>
+hashStruct<span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>typeHash<span class="token punctuation">,</span><span class="token function">encodeData</span><span class="token punctuation">(</span>Struct<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>EIP 712 中定义的结构体</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token function">EIP712Domain</span><span class="token punctuation">(</span><span class="token builtin">uint256</span> chainId<span class="token punctuation">,</span><span class="token builtin">address</span> verifyingContract<span class="token punctuation">)</span>
+<span class="token function">SafeTx</span><span class="token punctuation">(</span><span class="token builtin">address</span> to<span class="token punctuation">,</span><span class="token builtin">uint256</span> value<span class="token punctuation">,</span><span class="token builtin">bytes</span> data<span class="token punctuation">,</span><span class="token builtin">uint8</span> operation<span class="token punctuation">,</span><span class="token builtin">uint256</span> safeTxGas<span class="token punctuation">,</span><span class="token builtin">uint256</span> baseGas<span class="token punctuation">,</span><span class="token builtin">uint256</span> gasPrice<span class="token punctuation">,</span><span class="token builtin">address</span> gasToken<span class="token punctuation">,</span><span class="token builtin">address</span> refundReceiver<span class="token punctuation">,</span><span class="token builtin">uint256</span> nonce<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>EIP712结构体1：EIP712Domain</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">// https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/GnosisSafe.sol#L350</span>
+# 首先是encodeType 
+<span class="token builtin">bytes32</span> DOMAIN_SEPARATOR_TYPEHASH <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span><span class="token string">"EIP712Domain(uint256 chainId,address verifyingContract)"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+# 然后是encodeData
+<span class="token builtin">uint</span> chain_id<span class="token punctuation">;</span>
+<span class="token keyword">assembly</span><span class="token punctuation">&#123;</span>
+chain_id <span class="token operator">:=</span> <span class="token function">chainid</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token builtin">bytes</span> <span class="token keyword">memory</span> encodeData <span class="token operator">=</span> abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+DOMAIN_SEPARATOR_TYPEHASH<span class="token punctuation">,</span>
+chain_id<span class="token punctuation">,</span>
+<span class="token builtin">address</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+最后是得到domainSeparatorHash
+<span class="token builtin">bytes32</span> domainSeparatorHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>encodeData<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>EIP712结构体2：SafeTx</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">// https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/GnosisSafe.sol#L350</span>
+首先是encodeType<span class="token punctuation">:</span>
+<span class="token builtin">bytes32</span> SAFE_TX_TYPEHASH <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span><span class="token string">"SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+然后是encodeData<span class="token punctuation">:</span>
+注意到data中由<span class="token builtin">bytes</span>类型，针对这种不固定长度的数据类型，编码时直接取其hash值作为编码数据
+<span class="token builtin">bytes</span> <span class="token keyword">memory</span> safeTxEncodeData <span class="token operator">=</span> abi<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>
+	SAFE_TX_TYPEHASH<span class="token punctuation">,</span>
+	<span class="token builtin">address</span><span class="token punctuation">(</span>to<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token function">keccak256</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span><span class="token builtin">uint8</span><span class="token punctuation">(</span>operation<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span>safeTxGas<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span>baseGas<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span>gasPrice<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">address</span><span class="token punctuation">(</span>gasToken<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">address</span><span class="token punctuation">(</span>refundReceiver<span class="token punctuation">)</span><span class="token punctuation">,</span>
+	<span class="token builtin">uint256</span><span class="token punctuation">(</span>nonce<span class="token punctuation">)</span>
+<span class="token punctuation">)</span>
+最后是得到safeTxHash
+<span class="token builtin">bytes32</span> safeTxHash <span class="token operator">=</span> <span class="token function">keccak256</span><span class="token punctuation">(</span>safeTxEncodeData<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>最后，EIP712得到的结构化编码信息如下：</p>
+<p>EIP712 继承了EIP191，EIP的sign_data格式为</p>
+<pre class="line-numbers language-none"><code class="language-none">0x19 &lt;1 byte version&gt; &lt;version specific data&gt; &lt;data to sign&gt;.<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>0x01 表示EIP712 的版本号。</p>
+<p><img src="/images/2023-08-04-02.png" alt="版本号"></p>
+<pre class="line-numbers language-none"><code class="language-none">abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparatorHash, safeTxHash);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="签名的三种类型"><a href="#签名的三种类型" class="headerlink" title="签名的三种类型"></a>签名的三种类型</h2><p>在GnosisSafe中，所有的签名都编码为{bytes32 r}{btyes32 s}{uint8 v}，共计65个bytes，通过v值的不同来区分不同的签名类型。</p>
+<ul>
+<li><p>如果v值为0则为合约签名</p>
+</li>
+<li><p>如果v值为1则为预签名</p>
+</li>
+<li><p>其他情况下则为eoa签名，当v值大于30，用来匹配eth_sign方式；否则为正常签名。</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/GnosisSafe.sol#L256">https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/GnosisSafe.sol#L256</a></p>
+<h3 id="EOA的ECDSA签名"><a href="#EOA的ECDSA签名" class="headerlink" title="EOA的ECDSA签名"></a>EOA的ECDSA签名</h3><p>EOA 签名遵循RLP编码方式。</p>
+<p>恢复标识符<code>v</code> 是EOA签名的最后一个字节，平常情况下v不是 27 (<code>0x1b</code>) 就是 28 (<code>0x1c</code>)。恢复标识符非常重要，因为我们使用的是椭圆曲线算法，仅凭<code>r</code> 和 <code>s</code> 可计算出曲线上的多个点，因此会恢复出两个不同的公钥（及其对应地址）。<code>v</code> 会告诉我们应该使用这些点中的哪一个。</p>
+<p>在大多数实现中，v 在内部只是 0 或 1，而 27 是在签署比特币消息时加上的任意数。以太坊也接受了这一点。</p>
+<p>从 EIP-155 开始，我们还使用链 ID 来计算 v 值。这可以防止跨链重放攻击：以太坊上签署的交易无法在以太坊经典上使用，反之亦然。目前，恢复标识符只用来签署交易而非消息。</p>
+<p>safe中的v值若大于30，恢复标识符使用v-4匹配eth-sign方式，27和28直接匹配<code>ecrecover</code>。</p>
+<pre class="line-numbers language-none"><code class="language-none">EOA的签名由三部分组成，r,s,v. 其中v值在EIP-155后的定义为：由&#123;0,1&#125;+27 -&gt; &#123;0,1&#125; + chian_id*2 + 35<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<ul>
+<li><code>eth_sign</code> 方式</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">r:
+0x73d9a99698688c42837ef63fb3f57b18a979704bf00635d816460f018ec8cf1e
+s: 0x19242f7cc0f0aecce37b81a6b4e84712c43a024f2cc03f27924257b120ff1074
+v: 0x1f
+&#x3D;&gt; 编码后的签名为：
+bde0b9f486b1960454e326375d0b1680243e031fd4fb3f070d9a3ef9871ccfd5
+7d1a653cffb6321f889169f08e548684e005f2b0c3a6c06fba4c4a68f5e00624
+31<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li>正常方式签名</li>
+</ul>
+<pre class="line-numbers language-none"><code class="language-none">r: 0xbde0b9f486b1960454e326375d0b1680243e031fd4fb3f070d9a3ef9871ccfd5
+s: 0x7d1a653cffb6321f889169f08e548684e005f2b0c3a6c06fba4c4a68f5e00624 
+v: 0x1c
+&#x3D;&gt; 编码后的签名为：
+bde0b9f486b1960454e326375d0b1680243e031fd4fb3f070d9a3ef9871ccfd5
+7d1a653cffb6321f889169f08e548684e005f2b0c3a6c06fba4c4a68f5e00624
+28<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="签名验证"><a href="#签名验证" class="headerlink" title="签名验证"></a>签名验证</h4><pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">if</span> <span class="token punctuation">(</span>v <span class="token operator">></span> <span class="token number">30</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+   <span class="token comment">// 若v值大于30，需要减去4以适配eth_sign方式</span>
+   <span class="token comment">// If v > 30 then default va (27,28) has been adjusted for eth_sign flow</span>
+   <span class="token comment">// To support eth_sign and similar we adjust v and hash the messageHash with the Ethereum message prefix before applying ecrecover</span>
+   currentOwner <span class="token operator">=</span> <span class="token function">ecrecover</span><span class="token punctuation">(</span><span class="token function">keccak256</span><span class="token punctuation">(</span>abi<span class="token punctuation">.</span><span class="token function">encodePacked</span><span class="token punctuation">(</span><span class="token string">"\x19Ethereum Signed Message:\n32"</span><span class="token punctuation">,</span> dataHash<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> v <span class="token operator">-</span> <span class="token number">4</span><span class="token punctuation">,</span> r<span class="token punctuation">,</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+   <span class="token comment">// Default is the ecrecover flow with the provided data hash</span>
+   <span class="token comment">// Use ecrecover with the messageHash for EOA signatures</span>
+   currentOwner <span class="token operator">=</span> <span class="token function">ecrecover</span><span class="token punctuation">(</span>dataHash<span class="token punctuation">,</span> v<span class="token punctuation">,</span> r<span class="token punctuation">,</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="合约账户签名"><a href="#合约账户签名" class="headerlink" title="合约账户签名"></a>合约账户签名</h3><p>如果safe合约的管理员是一个合约账户，且采用合约账户签名的话，他需要支持EIP-1271签名方式。EIP-1271签名是利用智能合约对一笔交易进行签名，其会返回一个验证签名的地址以及需要验证的动态数组bytes, 故在GnosisSafe的编码规则中，让v值为0，r值为验证签名的地址，<code>s</code>值为<code>bytes类型签名数据的offset</code>，类似于abi编码。</p>
+<pre class="line-numbers language-none"><code class="language-none">动态数组bytes的内容为：
+bytes public data &#x3D; new bytes();
+data.push(0xdeadbeaf)
+则data中的内容为：
+&#123;bytes32 offset&#125;&#123;bytes32 length&#125;&#123;bytes data&#125;
+r: 0000000000000000000000000000000000000000000000000000000000000001 &#x2F;&#x2F; 支持EIP-1271的验证合约地址
+s: 00000000000000000000000000000000000000000000000000000000000000c3 &#x2F;&#x2F; 动态位置 bytes offset
+v: 00
+&#x3D;&gt;编码后的签名为：
+0000000000000000000000000000000000000000000000000000000000000001
+00000000000000000000000000000000000000000000000000000000000000c3
+00
+0000000000000000000000000000000000000000000000000000000000000008
+00000000000000000000000000000000000000000000000000000000deadbeaf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="签名验证-1"><a href="#签名验证-1" class="headerlink" title="签名验证"></a>签名验证</h4><pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F; bytes4(keccak256(&quot;isValidSignature(bytes32,bytes)&quot;)
+bytes4 internal constant EIP1271_MAGIC_VALUE &#x3D; 0x1626ba7e;
+require(ISignatureValidator(currentOwner).isValidSignature(data, contractSignature) &#x3D;&#x3D; EIP1271_MAGIC_VALUE, &quot;GS024&quot;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="预签名（Pre-validated-signatures）"><a href="#预签名（Pre-validated-signatures）" class="headerlink" title="预签名（Pre-validated signatures）"></a>预签名（Pre-validated signatures）</h3><p>预签名中设计v值为1，预签名可通过Gnosis Safe内部维护的<code>map(address=&gt;map(bytes32=&gt;bool))</code>，来确认某个账户对一笔交易哈希是否以及预先签名。</p>
+<p>Gnosis Safe提出了一个名为链上签名的解决方案，其要解决的问题是智能合约没有私钥，无法对一笔交易签名。它的解决方案是在状态合约中维护一个全局变量：</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">// Mapping to keep track of all hashes (message or transaction) that have been approve by ANY owners</span>
+<span class="token keyword">mapping</span><span class="token punctuation">(</span><span class="token builtin">address</span> <span class="token operator">=></span> <span class="token keyword">mapping</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> <span class="token operator">=></span> <span class="token builtin">uint256</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">public</span> approvedHashes<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>然后该safe多签钱包的一个Owner账户通过调用合约的<code>approveHash</code>方法，传递要签名的交易hash，来实现链上对一笔交易签名。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/**
+ * @dev Marks a hash as approved. This can be used to validate a hash that is used by a signature.
+ * @param hashToApprove The hash that should be marked as approved for signatures that are verified by this contract.
+ */</span>
+<span class="token keyword">function</span> <span class="token function">approveHash</span><span class="token punctuation">(</span><span class="token builtin">bytes32</span> hashToApprove<span class="token punctuation">)</span> <span class="token keyword">external</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">require</span><span class="token punctuation">(</span>owners<span class="token punctuation">[</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"GS030"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    approvedHashes<span class="token punctuation">[</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">]</span><span class="token punctuation">[</span>hashToApprove<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">emit</span> <span class="token function">ApproveHash</span><span class="token punctuation">(</span>hashToApprove<span class="token punctuation">,</span> msg<span class="token punctuation">.</span>sender<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>另外一种<code>v</code>值为1的情况是交易执行者也可以采用此签名方式，只需验证msg.sender 是否为r 中的owner</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>v <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token comment">// If v is 1 then it is an approved hash</span>
+  <span class="token comment">// When handling approved hashes the address of the approver is encoded into r</span>
+  currentOwner <span class="token operator">=</span> <span class="token builtin">address</span><span class="token punctuation">(</span><span class="token builtin">uint160</span><span class="token punctuation">(</span><span class="token builtin">uint256</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token comment">// Hashes are automatically approved by the sender of the message or when they have been pre-approved via a separate transaction</span>
+  <span class="token keyword">require</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender <span class="token operator">==</span> currentOwner <span class="token operator">||</span> approvedHashes<span class="token punctuation">[</span>currentOwner<span class="token punctuation">]</span><span class="token punctuation">[</span>dataHash<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"GS025"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这里的签名信息编码如下：</p>
+<pre class="line-numbers language-none"><code class="language-none">r: 0x0000000000000000000000000501be0da35990fbf5c434c29186a7966846c0d5 &#x2F;&#x2F;该比交易哈希的验证者地址
+s: 0x0000000000000000000000000000000000000000000000000000000000000000 &#x2F;&#x2F;占位符
+v: 0x01
+&#x3D;&gt;
+000000000000000000000000cc98f267c3830011dd56ce448e13ddb4cc747711
+0000000000000000000000000000000000000000000000000000000000000000
+1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="签名验证-2"><a href="#签名验证-2" class="headerlink" title="签名验证"></a>签名验证</h4><pre class="line-numbers language-none"><code class="language-none">&#x2F;&#x2F; Hashes are automatically approved by the sender of the message or when they have been pre-approved via a separate transaction
+require(msg.sender &#x3D;&#x3D; currentOwner || approvedHashes[currentOwner][dataHash] !&#x3D; 0, &quot;GS025&quot;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>因此，用于<code>execTransaction</code> 的签名字节是</p>
+<pre class="line-numbers language-none"><code class="language-none">&quot;0x&quot; + 
+&quot;000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000c300&quot; + &#x2F;&#x2F; encoded EIP-1271 signature
+&quot;0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000001&quot; + &#x2F;&#x2F; encoded pre-validated signature
+&quot;bde0b9f486b1960454e326375d0b1680243e031fd4fb3f070d9a3ef9871ccfd57d1a653cffb6321f889169f08e548684e005f2b0c3a6c06fba4c4a68f5e006241c&quot; + &#x2F;&#x2F; encoded ECDSA signature
+&quot;000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000deadbeef&quot;     &#x2F;&#x2F; length of bytes + data of bytes<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="EOA-链下构造签名"><a href="#EOA-链下构造签名" class="headerlink" title="EOA 链下构造签名"></a>EOA 链下构造签名</h2><h3 id="生成safeTxHash"><a href="#生成safeTxHash" class="headerlink" title="生成safeTxHash"></a>生成safeTxHash</h3><p>github.com&#x2F;safe-global&#x2F;safe-contracts&#x2F;blob&#x2F;v1.3.0&#x2F;contracts&#x2F;GnosisSafe.sol#L408</p>
+<p>传入相关参数(可以使用safe的sdk)，生成safeTxHash</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// @dev Returns hash to be signed by owners.</span>
+<span class="token comment">/// @param to Destination address.</span>
+<span class="token comment">/// @param value Ether value.</span>
+<span class="token comment">/// @param data Data payload.</span>
+<span class="token comment">/// @param operation Operation type.</span>
+<span class="token comment">/// @param safeTxGas Fas that should be used for the safe transaction.</span>
+<span class="token comment">/// @param baseGas Gas costs for data used to trigger the safe transaction.</span>
+<span class="token comment">/// @param gasPrice Maximum gas price that should be used for this transaction.</span>
+<span class="token comment">/// @param gasToken Token address (or 0 if ETH) that is used for the payment.</span>
+<span class="token comment">/// @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).</span>
+<span class="token comment">/// @param _nonce Transaction nonce.</span>
+<span class="token comment">/// @return Transaction hash.</span>
+<span class="token keyword">function</span> <span class="token function">getTransactionHash</span><span class="token punctuation">(</span>
+    <span class="token builtin">address</span> to<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> value<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">calldata</span> data<span class="token punctuation">,</span>
+    Enum<span class="token punctuation">.</span>Operation operation<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> safeTxGas<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> baseGas<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> gasPrice<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> gasToken<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> refundReceiver<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> _nonce
+<span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes32</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">return</span> <span class="token function">keccak256</span><span class="token punctuation">(</span><span class="token function">encodeTransactionData</span><span class="token punctuation">(</span>to<span class="token punctuation">,</span> value<span class="token punctuation">,</span> data<span class="token punctuation">,</span> operation<span class="token punctuation">,</span> safeTxGas<span class="token punctuation">,</span> baseGas<span class="token punctuation">,</span> gasPrice<span class="token punctuation">,</span> gasToken<span class="token punctuation">,</span> refundReceiver<span class="token punctuation">,</span> _nonce<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>通过safe合约的owner EOA地址对getTransactionHash函数返回的messageHash 进行签名。</p>
+<h3 id="组装拼接签名"><a href="#组装拼接签名" class="headerlink" title="组装拼接签名"></a>组装拼接签名</h3><p>如果我们的签名策略是2&#x2F;3，那么需要收集2个eoa owner地址的链下签名，最后将这些签名信息拼接作为signatures字段参数。</p>
+<p>签名信息拼接是按照多签合约管理员弓腰地址从小到大排序，每个signature对应65字节。</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/// @dev Allows to execute a Safe transaction confirmed by required number of owners and then pays the account that submitted the transaction.</span>
+<span class="token comment">///      Note: The fees are always transferred, even if the user transaction fails.</span>
+<span class="token comment">/// @param to Destination address of Safe transaction.</span>
+<span class="token comment">/// @param value Ether value of Safe transaction.</span>
+<span class="token comment">/// @param data Data payload of Safe transaction.</span>
+<span class="token comment">/// @param operation Operation type of Safe transaction.</span>
+<span class="token comment">/// @param safeTxGas Gas that should be used for the Safe transaction.</span>
+<span class="token comment">/// @param baseGas Gas costs that are independent of the transaction execution(e.g. base transaction fee, signature check, payment of the refund)</span>
+<span class="token comment">/// @param gasPrice Gas price that should be used for the payment calculation.</span>
+<span class="token comment">/// @param gasToken Token address (or 0 if ETH) that is used for the payment.</span>
+<span class="token comment">/// @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).</span>
+<span class="token comment">/// @param signatures Packed signature data (&#123;bytes32 r&#125;&#123;bytes32 s&#125;&#123;uint8 v&#125;)</span>
+<span class="token keyword">function</span> <span class="token function">execTransaction</span><span class="token punctuation">(</span>
+    <span class="token builtin">address</span> to<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> value<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">calldata</span> data<span class="token punctuation">,</span>
+    Enum<span class="token punctuation">.</span>Operation operation<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> safeTxGas<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> baseGas<span class="token punctuation">,</span>
+    <span class="token builtin">uint256</span> gasPrice<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> gasToken<span class="token punctuation">,</span>
+    <span class="token builtin">address</span> <span class="token keyword">payable</span> refundReceiver<span class="token punctuation">,</span>
+    <span class="token builtin">bytes</span> <span class="token keyword">memory</span> signatures
+<span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">payable</span> virtual <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bool</span> success<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="Safe合约签名消息"><a href="#Safe合约签名消息" class="headerlink" title="Safe合约签名消息"></a>Safe合约签名消息</h2><p><a target="_blank" rel="noopener" href="https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/handler/CompatibilityFallbackHandler.sol#L28C8">https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/handler/CompatibilityFallbackHandler.sol#L28C8</a></p>
+<p>safe合约签名采用EIP 1271标准，在isValidSignature实现了2种验证方式。</p>
+<p>首先判断_signature是否有值，无值走第一种方式，反之第二种方式。</p>
+<p>第一种是需要先调用<code>signMessage</code>函数，传入要签名的消息进行链上发交易实现合约签名。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/SignMessage.sol#L20">https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/SignMessage.sol#L20</a></p>
+<p>第二种是沿用上个章节的签名逻辑</p>
+<pre class="line-numbers language-solidity" data-language="solidity"><code class="language-solidity"><span class="token comment">/**
+  * Implementation of ISignatureValidator (see `interfaces/ISignatureValidator.sol`)
+  * @dev Should return whether the signature provided is valid for the provided data.
+  * @param _data Arbitrary length data signed on the behalf of address(msg.sender)
+  * @param _signature Signature byte array associated with _data
+  * @return a bool upon valid or invalid signature with corresponding _data
+  */</span>
+<span class="token keyword">function</span> <span class="token function">isValidSignature</span><span class="token punctuation">(</span><span class="token builtin">bytes</span> <span class="token keyword">calldata</span> _data<span class="token punctuation">,</span> <span class="token builtin">bytes</span> <span class="token keyword">calldata</span> _signature<span class="token punctuation">)</span> <span class="token keyword">public</span> <span class="token keyword">view</span> override <span class="token keyword">returns</span> <span class="token punctuation">(</span><span class="token builtin">bytes4</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// Caller should be a Safe</span>
+    GnosisSafe safe <span class="token operator">=</span> <span class="token function">GnosisSafe</span><span class="token punctuation">(</span><span class="token keyword">payable</span><span class="token punctuation">(</span>msg<span class="token punctuation">.</span>sender<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token builtin">bytes32</span> messageHash <span class="token operator">=</span> <span class="token function">getMessageHashForSafe</span><span class="token punctuation">(</span>safe<span class="token punctuation">,</span> _data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>_signature<span class="token punctuation">.</span>length <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">require</span><span class="token punctuation">(</span>safe<span class="token punctuation">.</span><span class="token function">signedMessages</span><span class="token punctuation">(</span>messageHash<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"Hash not approved"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">// 沿用上个章节的签名逻辑</span>
+        safe<span class="token punctuation">.</span><span class="token function">checkSignatures</span><span class="token punctuation">(</span>messageHash<span class="token punctuation">,</span> _data<span class="token punctuation">,</span> _signature<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+    <span class="token keyword">return</span> EIP1271_MAGIC_VALUE<span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://docs.safe.global/safe-core-protocol/signatures">https://docs.safe.global/safe-core-protocol/signatures</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/GnosisSafe.sol#L35-L43">https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/GnosisSafe.sol#L35-L43</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/EIP712/" rel="tag"># EIP712</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021-09-26-contract-security-specifications/" rel="prev" title="合约安全规范和漏洞防范">
+                  <i class="fa fa-angle-left"></i> 合约安全规范和漏洞防范
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023-11-29-eip712-sign-nested-structs/" rel="next" title="如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?)">
+                  如何针对嵌套结构体进行EIP712签名？ (How to Sign Nested Structs with EIP-712?) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">美H向W</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
